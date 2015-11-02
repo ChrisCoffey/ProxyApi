@@ -5,6 +5,7 @@ var userMiddleware = require('../middleware/userMiddleware');
 var router = express.Router();
 
 router.get("/", middleware.ensureAuthenticated, userMiddleware.getUsers);
-router.get("/webusers", middleware.ensureAuthenticated, userMiddleware.getAllWebUsers);
+router.get("/webusers", middleware.ensureAuthenticated, middleware.allowCrossDomainRequest,
+  userMiddleware.getAllWebUsers);
 router.get("/search", middleware.ensureAuthenticated, userMiddleware.searchUsers);
 module.exports = router;
