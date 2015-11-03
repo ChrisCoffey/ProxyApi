@@ -64,8 +64,8 @@ userMiddleware.getUsers = function (req, res) {
   middleware.store.child("users").once("value", function (snapshot) {
     var queryUsers = req.query.users;
     // you have no contacts
-    if (queryUsers == null) {
-      res.status(200);
+    if (queryUsers == null || queryUsers == 'undefined') {
+      res.status(200).send("No query users entered");
     } else {
       var isArray = queryUsers.constructor === Array;
       res.status(200).json(getQueriedUsers(queryUsers, snapshot, isArray));
@@ -128,7 +128,7 @@ userMiddleware.searchUsers = function (req, res) {
     var result = [];
     var queryName = req.query.name;
 
-    if (queryName == null) {
+    if (queryName == null || queryName == 'undefined') {
       res.status(401).send("401 required query param \"name\" missing");
     } else {
       //for every user in firebase, if they match the queryName, add them to the response result.
