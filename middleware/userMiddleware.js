@@ -65,7 +65,7 @@ userMiddleware.getUsers = function (req, res) {
     var queryUsers = req.query.users;
     // you have no contacts
     if (queryUsers == null || queryUsers == 'undefined') {
-      res.status(200);
+      res.status(200).json([]);
     } else {
       var isArray = queryUsers.constructor === Array;
       res.status(200).json(getQueriedUsers(queryUsers, snapshot, isArray));
