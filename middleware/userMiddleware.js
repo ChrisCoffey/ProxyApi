@@ -1,5 +1,6 @@
 "use strict";
 var middleware = require('../middleware/common');
+var sharedMiddleware = require('../middleware/sharedMiddleware');
 var userMiddleware = {};
 
 /**
@@ -64,7 +65,7 @@ userMiddleware.getUsers = function (req, res) {
   middleware.store.child("users").once("value", function (snapshot) {
     var queryUsers = req.query.users;
     // you have no contacts
-    if (queryUsers == null || queryUsers == 'undefined') {
+    if (queryUsers === null || queryUsers === 'undefined') {
       res.status(200).json([]);
     } else {
       var isArray = queryUsers.constructor === Array;
@@ -128,7 +129,7 @@ userMiddleware.searchUsers = function (req, res) {
     var result = [];
     var queryName = req.query.name;
 
-    if (queryName == null || queryName == 'undefined') {
+    if (queryName === null || queryName === 'undefined') {
       res.status(401).send("401 required query param \"name\" missing");
     } else {
       //for every user in firebase, if they match the queryName, add them to the response result.
@@ -138,6 +139,141 @@ userMiddleware.searchUsers = function (req, res) {
     }
     //return result data as json string
     res.status(200).json(result);
+  }, function (err) {
+    console.log("user search error: ", err);
+    res.status(401).send("Error authenticating with firebase: ", err);
+  });
+};
+
+/**
+ * Get a specific user.
+ * @param req request
+ * @param res response
+ */
+userMiddleware.getUser = function (req, res) {
+  middleware.store.child("users").once("value", function (snapshot) {
+    var queryId = req.query.id;
+
+    if (queryId === null || queryId === 'undefined') {
+      res.status(401).send("401 required query param \"Id\" missing");
+    } else {
+      //for every user in firebase, if they match the queryId, return them. Else 401.
+      snapshot.forEach(function (firebaseUser) {
+        var user = firebaseUser.val();
+        if (user.id === queryId) {
+          //return result data as json string
+          res.status(200).json(user);
+        }
+      });
+    }
+    //return result data as json string
+    res.status(401).send("401 could not find the entered user UUID");
+  }, function (err) {
+    console.log("user search error: ", err);
+    res.status(401).send("Error authenticating with firebase: ", err);
+  });
+};
+
+
+/**
+ * Get a list of featured users.
+ * @param req request
+ * @param res response
+ */
+userMiddleware.getFeaturedUsers = function (req, res) {
+  var featuredUserIds = [];
+  var featuredUsers = [];
+  var queryId = req.query.id;
+  //get feature user id array
+  middleware.store.child("featured").once("value", function (snapshot) {
+    snapshot.forEach(function (userId) {
+      featuredUserIds.add(userId.val());
+    });
+  }, function (err) {
+    console.log("user search error: ", err);
+    res.status(401).send("Error authenticating with firebase: ", err);
+  });
+  //get actual featured users and return them
+  middleware.store.child("users").once("value", function (snapshot) {
+    //for every user in firebase, if they match the featured user id, add them to the response list.
+    snapshot.forEach(function (firebaseUser) {
+      var user = firebaseUser.val();
+      for (var i = 0; i < featuredUserIds.size(); i++) {
+        if (user.id === featuredUserIds[i]) {
+          featuredUsers.add(user);
+        }
+      }
+    });
+    //return result data as json string
+    res.status(200).json(featuredUsers);
+  }, function (err) {
+    console.log("user search error: ", err);
+    res.status(401).send("Error authenticating with firebase: ", err);
+  });
+};
+
+/**
+ * Get a specific user.
+ * @param req request
+ * @param res response
+ */
+userMiddleware.userFollowerCount = function (req, res) {
+  middleware.store.child("users").once("value", function (snapshot) {
+    var count = 0;
+    var queryId = req.query.id;
+
+    if (queryId === null || queryId === 'undefined') {
+      res.status(401).send("401 required query param \"Id\" missing");
+    } else {
+      //for every user in firebase, if they match the queryName, add them to the response result.
+      snapshot.forEach(function (firebaseUser) {
+        var user = firebaseUser.val();
+        var contacts = user.contacts;
+        if (contacts != null && typeof contacts != 'undefined') {
+          for (var i = 0; i < contacts.length; i++) {
+            if (contacts[i] === queryId) {
+              ++count;
+              return;
+            }
+          }
+        }
+      });
+      //return result data as json string
+      res.status(200).json(count);
+    }
+  }, function (err) {
+    console.log("user search error: ", err);
+    res.status(401).send("Error authenticating with firebase: ", err);
+  });
+};
+
+/**
+ * Get a specific user.
+ * @param req request
+ * @param res response
+ */
+userMiddleware.sharedLink = function (req, res) {
+  middleware.store.child("shared").once("value", function (snapshot) {
+    var queryId = req.query.groupId;
+    var userId = req.query.userId;
+    if (userId === null || userId === 'undefined') {
+      res.status(401).send("401 required query param \"userId\" missing");
+    }
+    if (queryId === null || queryId === 'undefined') {
+      res.status(401).send("401 required query param \"groupId\" missing");
+    }
+    //for every link in firebase, if it contains the matching groupId, return the shared link
+    snapshot.forEach(function (sharedLink) {
+      var link = sharedLink.val();
+      var linkGroupId = link.groupId;
+
+      if (linkGroupId === queryId) {
+        res.status(200).json(link);
+      }
+    });
+
+    //TODO: GENERATE A NEW REQUEST INSTEAD OF LINKING THE QUERY PARAMS
+    sharedMiddleware.putSharedLinks(req, res);
   }, function (err) {
     console.log("user search error: ", err);
     res.status(401).send("Error authenticating with firebase: ", err);
@@ -169,7 +305,7 @@ function checkQueryUser(firebaseUser, queryName, result) {
  * @returns {string} uppercase input
  */
 function filterNameParams(string) {
-  return (string != null && typeof string != 'undefined') ? string.toUpperCase() : "";
+  return (string !== null && typeof string !== 'undefined') ? string.toUpperCase() : "";
 }
 
 module.exports = userMiddleware;
