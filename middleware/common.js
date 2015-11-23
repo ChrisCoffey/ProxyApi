@@ -1,6 +1,7 @@
 "use strict";
-var Firebase = require("firebase");
+var Firebase = require('firebase');
 var middleware = {store: null};
+var rollbar = require('rollbar');
 middleware.store = new Firebase("https://dazzling-torch-1917.firebaseio.com");
 
 
@@ -20,7 +21,8 @@ middleware.ensureAuthenticated = function (req, res, next) {
   middleware.store.authWithCustomToken(authToken, function (error, authData) {
     if (error) {
       console.log("Authentication Failed!", error);
-      return res.status(401).send("Error authenticating with Firebase: ", error);
+      res.status(401).send("Error authenticating with Firebase: ", error);
+      next(error);
     } else {
       console.log("Authenticated successfully with payload: ", authData);
       return next()
@@ -35,14 +37,19 @@ middleware.ensureAuthenticated = function (req, res, next) {
  * @author Slavik Meltser (slavik@meltser.info).
  * @link http://slavik.meltser.info/?p=142
  */
-middleware.guid = function guid() {
+middleware.guid = function () {
   function _p8(s) {
     var p = (Math.random().toString(16) + "000000000").substr(2, 8);
     return s ? "-" + p.substr(0, 4) + "-" + p.substr(4, 4) : p;
   }
+
   return _p8() + _p8(true) + _p8(true) + _p8();
 };
 
+middleware.logError = function (errorMessage, err, res, next) {
+  console.log(errorMessage);
+  return next(err);
+};
 
 middleware.allowCrossDomainRequest = function (req, res, next) {
 

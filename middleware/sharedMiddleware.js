@@ -2,8 +2,7 @@
 var middleware = require('../middleware/common');
 var sharedMiddleware = {};
 
-
-sharedMiddleware.putSharedLinks = function (req, res) {
+sharedMiddleware.putSharedLinks = function (req, res, next) {
   var result = [];
   var groupIds = req.query.groupId;
   if (groupIds === null || groupIds === 'undefined') {
@@ -20,17 +19,21 @@ sharedMiddleware.putSharedLinks = function (req, res) {
       sharedLink.id = middleware.guid();
       sharedLink.groupId = groupIds[i];
       sharedLink.userId = userId;
-      result.push(sharedLink);
-      middleware.store.child("shared").child(sharedLink.id).set(sharedLink);
+      putSharedLink(result, sharedLink);
     }
   } else {
     sharedLink.id = middleware.guid();
     sharedLink.groupId = groupIds;
     sharedLink.userId = userId;
-    result.push(sharedLink);
-    middleware.store.child("shared").child(sharedLink.id).set(sharedLink);
+    putSharedLink(result, sharedLink);
   }
+  if(sharedLink != null || undefined)
   res.status(200).json(sharedLink);
 };
+
+function putSharedLink(result, sharedLink) {
+  result.push(sharedLink);
+  middleware.store.child("shared").child(sharedLink.id).set(sharedLink);
+}
 
 module.exports = sharedMiddleware;

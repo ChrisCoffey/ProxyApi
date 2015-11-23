@@ -8,13 +8,14 @@ var userMiddleware = {};
  * Galen requested this so the web app doesn't download unnecessary info.
  * @param req request
  * @param res response
+ * @param next
  */
-userMiddleware.getAllWebUsers = function (req, res) {
+userMiddleware.getAllWebUsers = function (req, res, next) {
   middleware.store.child("users").once("value", function (snapshot) {
     res.status(200).json(getAllWebUsers(snapshot));
   }, function (err) {
-    console.log("users lookup error: ", err);
-    res.status(401).send("Error authenticating with firebase: ", err);
+    var errorMessage = "getAllWebUsers failed: " + err;
+    middleware.logError(errorMessage, err, res, next);
   });
 };
 
@@ -60,20 +61,21 @@ function getFullName(user) {
  * Search the users table for the input array of queryUsers.
  * @param req request
  * @param res response
+ * @param next
  */
-userMiddleware.getUsers = function (req, res) {
+userMiddleware.getUsers = function (req, res, next) {
   middleware.store.child("users").once("value", function (snapshot) {
     var queryUsers = req.query.users;
     // you have no contacts
-    if (queryUsers === null || queryUsers === 'undefined') {
-      res.status(200).json([]);
+    if (queryUsers === null || typeof queryUsers === 'undefined') {
+      res.status(401).json("401 required query param \"users\" missing");
     } else {
       var isArray = queryUsers.constructor === Array;
       res.status(200).json(getQueriedUsers(queryUsers, snapshot, isArray));
     }
   }, function (err) {
-    console.log("users lookup error: ", err);
-    res.status(401).send("Error authenticating with firebase: ", err);
+    var errorMessage = "getUsers failed: " + err;
+    middleware.logError(errorMessage, err, res, next);
   });
 };
 
@@ -123,13 +125,14 @@ function getQueriedUsers(queryUsers, snapshot, isArray) {
  * Search for users based of their first, last, and first + last names.
  * @param req request
  * @param res response
+ * @param next
  */
-userMiddleware.searchUsers = function (req, res) {
+userMiddleware.searchUsers = function (req, res, next) {
   middleware.store.child("users").once("value", function (snapshot) {
     var result = [];
     var queryName = req.query.name;
 
-    if (queryName === null || queryName === 'undefined') {
+    if (queryName === null || typeof queryName === 'undefined') {
       res.status(401).send("401 required query param \"name\" missing");
     } else {
       //for every user in firebase, if they match the queryName, add them to the response result.
@@ -140,8 +143,8 @@ userMiddleware.searchUsers = function (req, res) {
     //return result data as json string
     res.status(200).json(result);
   }, function (err) {
-    console.log("user search error: ", err);
-    res.status(401).send("Error authenticating with firebase: ", err);
+    var errorMessage = "searchUsers failed: " + err;
+    middleware.logError(errorMessage, err, res, next);
   });
 };
 
@@ -149,12 +152,13 @@ userMiddleware.searchUsers = function (req, res) {
  * Get a specific user.
  * @param req request
  * @param res response
+ * @param next
  */
-userMiddleware.getUser = function (req, res) {
+userMiddleware.getUser = function (req, res, next) {
   middleware.store.child("users").once("value", function (snapshot) {
     var queryId = req.query.id;
 
-    if (queryId === null || queryId === 'undefined') {
+    if (queryId === null || typeof queryId === 'undefined') {
       res.status(401).send("401 required query param \"Id\" missing");
     } else {
       //for every user in firebase, if they match the queryId, return them. Else 401.
@@ -169,8 +173,8 @@ userMiddleware.getUser = function (req, res) {
     //return result data as json string
     res.status(401).send("401 could not find the entered user UUID");
   }, function (err) {
-    console.log("user search error: ", err);
-    res.status(401).send("Error authenticating with firebase: ", err);
+    var errorMessage = "getUser failed: " + err;
+    middleware.logError(errorMessage, err, res, next);
   });
 };
 
@@ -179,8 +183,9 @@ userMiddleware.getUser = function (req, res) {
  * Get a list of featured users.
  * @param req request
  * @param res response
+ * @param next
  */
-userMiddleware.getFeaturedUsers = function (req, res) {
+userMiddleware.getFeaturedUsers = function (req, res, next) {
   var featuredUserIds = [];
   var featuredUsers = [];
   var queryId = req.query.id;
@@ -207,8 +212,8 @@ userMiddleware.getFeaturedUsers = function (req, res) {
     //return result data as json string
     res.status(200).json(featuredUsers);
   }, function (err) {
-    console.log("user search error: ", err);
-    res.status(401).send("Error authenticating with firebase: ", err);
+    var errorMessage = "getFeaturedUsers failed: " + err;
+    middleware.logError(errorMessage, err, res, next);
   });
 };
 
@@ -216,13 +221,14 @@ userMiddleware.getFeaturedUsers = function (req, res) {
  * Get a specific user.
  * @param req request
  * @param res response
+ * @param next
  */
-userMiddleware.userFollowerCount = function (req, res) {
+userMiddleware.userFollowerCount = function (req, res, next) {
   middleware.store.child("users").once("value", function (snapshot) {
     var count = 0;
     var queryId = req.query.id;
 
-    if (queryId === null || queryId === 'undefined') {
+    if (queryId === null || typeof queryId === 'undefined') {
       res.status(401).send("401 required query param \"Id\" missing");
     } else {
       //for every user in firebase, if they match the queryName, add them to the response result.
@@ -242,8 +248,8 @@ userMiddleware.userFollowerCount = function (req, res) {
       res.status(200).json(count);
     }
   }, function (err) {
-    console.log("user search error: ", err);
-    res.status(401).send("Error authenticating with firebase: ", err);
+    var errorMessage = "userFollowerCount failed: " + err;
+    middleware.logError(errorMessage, err, res, next);
   });
 };
 
@@ -251,15 +257,16 @@ userMiddleware.userFollowerCount = function (req, res) {
  * Get a specific user.
  * @param req request
  * @param res response
+ * @param next
  */
-userMiddleware.sharedLink = function (req, res) {
+userMiddleware.sharedLink = function (req, res, next) {
   middleware.store.child("shared").once("value", function (snapshot) {
     var queryId = req.query.groupId;
     var userId = req.query.userId;
-    if (userId === null || userId === 'undefined') {
+    if (userId === null || typeof userId === 'undefined') {
       res.status(401).send("401 required query param \"userId\" missing");
     }
-    if (queryId === null || queryId === 'undefined') {
+    if (queryId === null || typeof queryId === 'undefined') {
       res.status(401).send("401 required query param \"groupId\" missing");
     }
     //for every link in firebase, if it contains the matching groupId, return the shared link
@@ -273,10 +280,10 @@ userMiddleware.sharedLink = function (req, res) {
     });
 
     //TODO: GENERATE A NEW REQUEST INSTEAD OF LINKING THE QUERY PARAMS
-    sharedMiddleware.putSharedLinks(req, res);
+    sharedMiddleware.putSharedLinks(req, res, next);
   }, function (err) {
-    console.log("user search error: ", err);
-    res.status(401).send("Error authenticating with firebase: ", err);
+    var errorMessage = "sharedLink failed: " + err;
+    middleware.logError(errorMessage, err, res, next);
   });
 };
 
@@ -291,7 +298,7 @@ function checkQueryUser(firebaseUser, queryName, result) {
   var capitalizedName = filterNameParams(queryName);
   var first = filterNameParams(data.first);
   var last = filterNameParams(data.last);
-  var fullname = first + " " + last
+  var fullname = first + " " + last;
   // if the names aren't empty and the fullname starts with the query name;
   if (first != "" && last != "" && fullname.indexOf(capitalizedName) === 0) {
     result.push(data);
