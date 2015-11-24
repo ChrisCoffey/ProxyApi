@@ -1,6 +1,6 @@
 "use strict";
 var middleware = require('../middleware/common');
-var sharedMiddleware = require('../middleware/sharedMiddleware');
+var sharedMiddleware = require('sharedLinkMiddleware');
 var userMiddleware = {};
 
 /**
@@ -11,7 +11,7 @@ var userMiddleware = {};
  * @param next
  */
 userMiddleware.getAllWebUsers = function (req, res, next) {
-  middleware.store.child("users").once("value", function (snapshot) {
+  middleware.firebaseStore.child("users").once("value", function (snapshot) {
     res.status(200).json(getAllWebUsers(snapshot));
   }, function (err) {
     var errorMessage = "getAllWebUsers failed: " + err;
@@ -53,7 +53,18 @@ function getWebUser(user) {
  * @returns {string}
  */
 function getFullName(user) {
-  var name = user.first + " " + user.last;
+  var first = user.first;
+  var last = user.last;
+  var name;
+  if (first !== null && typeof first !== 'undefined') {
+    if (last !== null && typeof last !== 'undefined') {
+      name = user.first + " " + user.last;
+    } else {
+      name = user.first;
+    }
+  } else {
+    name = user.last;
+  }
   return name.trim();
 }
 
@@ -64,7 +75,7 @@ function getFullName(user) {
  * @param next
  */
 userMiddleware.getUsers = function (req, res, next) {
-  middleware.store.child("users").once("value", function (snapshot) {
+  middleware.firebaseStore.child("users").once("value", function (snapshot) {
     var queryUsers = req.query.users;
     // you have no contacts
     if (queryUsers === null || typeof queryUsers === 'undefined') {
@@ -128,7 +139,7 @@ function getQueriedUsers(queryUsers, snapshot, isArray) {
  * @param next
  */
 userMiddleware.searchUsers = function (req, res, next) {
-  middleware.store.child("users").once("value", function (snapshot) {
+  middleware.firebaseStore.child("users").once("value", function (snapshot) {
     var result = [];
     var queryName = req.query.name;
 
@@ -155,7 +166,7 @@ userMiddleware.searchUsers = function (req, res, next) {
  * @param next
  */
 userMiddleware.getUser = function (req, res, next) {
-  middleware.store.child("users").once("value", function (snapshot) {
+  middleware.firebaseStore.child("users").once("value", function (snapshot) {
     var queryId = req.query.id;
 
     if (queryId === null || typeof queryId === 'undefined') {
@@ -188,24 +199,24 @@ userMiddleware.getUser = function (req, res, next) {
 userMiddleware.getFeaturedUsers = function (req, res, next) {
   var featuredUserIds = [];
   var featuredUsers = [];
-  var queryId = req.query.id;
   //get feature user id array
-  middleware.store.child("featured").once("value", function (snapshot) {
+  middleware.firebaseStore.child("featured").once("value", function (snapshot) {
     snapshot.forEach(function (userId) {
-      featuredUserIds.add(userId.val());
+      featuredUserIds.push(userId.val());
     });
   }, function (err) {
     console.log("user search error: ", err);
     res.status(401).send("Error authenticating with firebase: ", err);
   });
   //get actual featured users and return them
-  middleware.store.child("users").once("value", function (snapshot) {
+  middleware.firebaseStore.child("users").once("value", function (snapshot) {
     //for every user in firebase, if they match the featured user id, add them to the response list.
     snapshot.forEach(function (firebaseUser) {
       var user = firebaseUser.val();
-      for (var i = 0; i < featuredUserIds.size(); i++) {
+      for (var i = 0; i < featuredUserIds.length; i++) {
         if (user.id === featuredUserIds[i]) {
-          featuredUsers.add(user);
+          featuredUsers.push(user);
+          featuredUserIds.splice(i, 1);
         }
       }
     });
@@ -224,7 +235,7 @@ userMiddleware.getFeaturedUsers = function (req, res, next) {
  * @param next
  */
 userMiddleware.userFollowerCount = function (req, res, next) {
-  middleware.store.child("users").once("value", function (snapshot) {
+  middleware.firebaseStore.child("users").once("value", function (snapshot) {
     var count = 0;
     var queryId = req.query.id;
 
@@ -260,9 +271,10 @@ userMiddleware.userFollowerCount = function (req, res, next) {
  * @param next
  */
 userMiddleware.sharedLink = function (req, res, next) {
-  middleware.store.child("shared").once("value", function (snapshot) {
+  middleware.firebaseStore.child("shared").once("value", function (snapshot) {
     var queryId = req.query.groupId;
     var userId = req.query.userId;
+    var createLink = true;
     if (userId === null || typeof userId === 'undefined') {
       res.status(401).send("401 required query param \"userId\" missing");
     }
@@ -276,11 +288,13 @@ userMiddleware.sharedLink = function (req, res, next) {
 
       if (linkGroupId === queryId) {
         res.status(200).json(link);
+        createLink = false;
       }
     });
 
-    //TODO: GENERATE A NEW REQUEST INSTEAD OF LINKING THE QUERY PARAMS
-    sharedMiddleware.putSharedLinks(req, res, next);
+    if (createLink) {
+      sharedMiddleware.putSharedLinks(req, res, next);
+    }
   }, function (err) {
     var errorMessage = "sharedLink failed: " + err;
     middleware.logError(errorMessage, err, res, next);
@@ -300,7 +314,7 @@ function checkQueryUser(firebaseUser, queryName, result) {
   var last = filterNameParams(data.last);
   var fullname = first + " " + last;
   // if the names aren't empty and the fullname starts with the query name;
-  if (first != "" && last != "" && fullname.indexOf(capitalizedName) === 0) {
+  if (fullname.indexOf(capitalizedName) === 0) {
     result.push(data);
   }
 }

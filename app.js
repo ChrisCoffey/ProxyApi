@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var app = express();
+//var expressWs = require('express-ws')(app);
 
 var rollbar = require('rollbar');
 var rollbarKey = "57fcf7c2515b4dd3916052ed09902fe8";
@@ -27,17 +28,12 @@ app.use('/users', users);
 // Use the rollbar error handler to send exceptions to your rollbar account
 app.use(rollbar.errorHandler(rollbarKey));
 
-// catch and forward
-app.use(function (req, res, next) {
-  logError(err, next);
-});
-
 // error handlers
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
   app.use(function (err, req, res, next) {
-    logError(err, next);
+    next(err);
   });
 }
 
