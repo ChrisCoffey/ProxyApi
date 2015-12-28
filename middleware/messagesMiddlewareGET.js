@@ -5,7 +5,7 @@ var getMiddleware = {};
 
 getMiddleware.getUserMessages = function (req, res, next) {
   var p1 = vals.USERID;
-  var userId = middleware.checkParam400(req.get(p1), p1);
+  var userId = middleware.checkParam400(res, req.get(p1), p1);
   middleware.firebaseStore.child(vals.MESSAGES).once(vals.VALUE, function (snapshot) {
     res.status(200).json(getPendingMessages(userId, snapshot));
   }, function (err) {

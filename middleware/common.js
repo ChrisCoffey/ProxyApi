@@ -29,7 +29,7 @@ function authenticateCustomToken(authToken, res, next) {
       next(error);
     } else {
       console.log("Authenticated successfully with payload: ", authData);
-      return next()
+      next()
     }
   });
 }
@@ -102,14 +102,34 @@ middleware.allowCrossDomainRequest = function (req, res, next) {
 };
 
 middleware.get400ParamError = function (string) {
-  return "400 required header param \"string\" missing or undefined";
+  return "400 required header param \"" + string + "\" missing or undefined";
 };
 
-middleware.checkParam400 = function (param, name) {
+middleware.checkParam400 = function (res, param, name) {
   if (param === null || typeof param === vals.UNDEFINED) {
     res.status(400).json(middleware.get400ParamError(name));
   }
   return param
+};
+
+middleware.createNewUser = function (user) {
+  var newUser = {
+    id: "", first: "", last: "", email: "", profileURL: "", coverURL: "",
+    channels: [], contacts: [], groups: [], androidVersion: 0
+  };
+
+  newUser.id = user.id;
+  newUser.first = user.first;
+  newUser.last = user.last;
+  newUser.email = user.email;
+  newUser.profileURL = user.profileURL;
+  newUser.coverURL = user.coverURL;
+  newUser.channels = user.channels;
+  newUser.contacts = user.contacts;
+  newUser.groups = user.groups;
+  newUser.androidVersion = user.androidVersion;
+
+  return newUser;
 };
 
 module.exports = middleware;
