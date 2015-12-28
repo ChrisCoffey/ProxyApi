@@ -1,6 +1,6 @@
 "use strict";
 var middleware = require('../middleware/common');
-var sharedMiddleware = require('sharedLinkMiddleware');
+var sharedMiddleware = require('../middleware/sharedLinkMiddleware');
 var userMiddleware = {};
 
 /**
