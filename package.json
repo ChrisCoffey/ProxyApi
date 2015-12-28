@@ -23,6 +23,7 @@
     "rollbar": "~0.5.10",
     "serve-favicon": "^2.3.0",
     "underscore":"~1.8.3",
+    "util": "^0.10.3",
     "mongoose":"~4.3.5",
     "steam":"~1.4.0"
   }
