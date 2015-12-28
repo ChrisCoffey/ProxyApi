@@ -1,0 +1,11 @@
+"use strict";
+var middleware = require('../middleware/common');
+var sharedMiddleware = require('sharedLinkMiddleware');
+var userMiddleware = {};
+var GOOGLE_API_URL = "https://www.googleapis.com/plus/v1/";
+
+
+googlePlusMiddleware.getCurrentUser = function (req, res, next) {
+};
+
+module.exports = googlePlusMiddleware;

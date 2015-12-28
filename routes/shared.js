@@ -3,8 +3,8 @@
  */
 var express = require("express");
 var middleware = require('../middleware/common');
-var sharedMiddleware = require('../middleware/sharedMiddleware');
+var sharedMiddleware = require('../middleware/sharedLinkMiddleware');
 var router = express.Router();
-router.put("/", middleware.ensureAuthenticated, sharedMiddleware.putSharedLinks);
+router.put("/", middleware.ensureFirebaseAuthenticated, sharedMiddleware.putSharedLinks);
 
 module.exports = router;

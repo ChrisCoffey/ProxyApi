@@ -1,9 +1,7 @@
 "use strict";
 var Firebase = require('firebase');
-var middleware = {store: null};
-var rollbar = require('rollbar');
-middleware.store = new Firebase("https://dazzling-torch-1917.firebaseio.com");
-
+var middleware = {firebaseStore: null};
+middleware.firebaseStore = new Firebase("https://dazzling-torch-1917.firebaseio.com");
 
 /**
  * Ensure authorization with firebase before requesting any data.
@@ -11,14 +9,17 @@ middleware.store = new Firebase("https://dazzling-torch-1917.firebaseio.com");
  * @param res response
  * @param next call next
  */
-middleware.ensureAuthenticated = function (req, res, next) {
+middleware.ensureFirebaseAuthenticated = function (req, res, next) {
   var authToken = req.query.auth;
   if (authToken == null) {
-    console.log("Null firebase token");
-    return res.status(401).send("401 required query param \"auth\" missing");
+    authenticateProvider(req, res, next);
+  } else {
+    authenticateCustomToken(authToken, res, next);
   }
+};
 
-  middleware.store.authWithCustomToken(authToken, function (error, authData) {
+function authenticateCustomToken(authToken, res, next) {
+  middleware.firebaseStore.authWithCustomToken(authToken, function (error, authData) {
     if (error) {
       console.log("Authentication Failed!", error);
       res.status(401).send("Error authenticating with Firebase: ", error);
@@ -26,6 +27,36 @@ middleware.ensureAuthenticated = function (req, res, next) {
     } else {
       console.log("Authenticated successfully with payload: ", authData);
       return next()
+    }
+  });
+}
+
+/**
+ * The request had no auth query param, check to see if it had a provider and token.
+ * @param req
+ * @param res
+ * @param next
+ */
+function authenticateProvider(req, res, next) {
+  var authToken = req.query.token;
+  var authProvider = req.query.provider;
+  if (authToken == null) {
+    console.log("Null firebase token");
+    return res.status(401).send("401 required query param \"token\" missing");
+  }
+  if (authProvider == null) {
+    console.log("Null firebase token");
+    return res.status(401).send("401 required query param \"provider\" missing");
+  }
+
+  middleware.firebaseStore.authWithOAuthToken(authProvider, authToken, function (error, authData) {
+    if (error) {
+      console.log("Authentication Failed!", error);
+      res.status(401).send("Error authenticating with Firebase: ", error);
+      next(error);
+    } else {
+      console.log("Authenticated successfully with payload:", authData);
+      next()
     }
   });
 };

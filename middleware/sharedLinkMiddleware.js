@@ -33,7 +33,7 @@ sharedMiddleware.putSharedLinks = function (req, res, next) {
 
 function putSharedLink(result, sharedLink) {
   result.push(sharedLink);
-  middleware.store.child("shared").child(sharedLink.id).set(sharedLink);
+  middleware.firebaseStore.child("shared").child(sharedLink.id).set(sharedLink);
 }
 
 module.exports = sharedMiddleware;
