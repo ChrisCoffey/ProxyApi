@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var vals = require('./middleware/middlewareGlobals');
 var app = express();
 //var expressWs = require('express-ws')(app);
 
@@ -22,8 +23,8 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/users', users);
+app.use(vals.ROOT_URL, routes);
+app.use(vals.USERS_URL, users);
 
 // Use the rollbar error handler to send exceptions to your rollbar account
 app.use(rollbar.errorHandler(rollbarKey));
