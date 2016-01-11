@@ -7,8 +7,8 @@ sharedMiddleware.putSharedLinks = function (req, res, next) {
   var result = [];
   var p1 = vals.USERID;
   var p2 = vals.GROUPID;
-  var userId = middleware.checkParam400(req.get(p1), p1);
-  var groupIdParam = middleware.checkParam400(req.get(p2), p2);
+  var userId = middleware.checkParam400(res, req.get(p1), p1);
+  var groupIdParam = middleware.checkParam400(res, req.get(p2), p2);
   var sharedLink = {id: "", groupId: "", userId: ""};
 
   if (groupIdParam.constructor === Array) {

@@ -33,8 +33,9 @@ app.route(vals.FEATURED_URL)
  * Update a user.
  */
 app.route(vals.USER_URL)
-  .get(common.ensureFirebaseAuthenticated, getUser.getUser)
-  .put(common.ensureFirebaseAuthenticated, putUser.updateUser);
+  .all(common.ensureFirebaseAuthenticated)
+  .get(getUser.getUser)
+  .put(putUser.updateUser);
 /**
  * Update user contacts.
  */
