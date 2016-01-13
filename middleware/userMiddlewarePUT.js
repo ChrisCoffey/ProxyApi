@@ -52,7 +52,7 @@ putMiddleware.updateUserVersion = function (req, res, next) {
       var error = "Error updating user version: " + err;
       middleware.logError(error, err, res, next)
     } else {
-      res.status(200).send(version);
+      res.status(200).send(version.androidVersion);
     }
   });
 };

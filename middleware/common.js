@@ -19,7 +19,7 @@ middleware.guid = function () {
 };
 
 middleware.logError = function (errorMessage, err, res, next) {
-  res.status(400);
+  res.sendStatus(err.statusCode);
   console.log(errorMessage);
   return next(err);
 };

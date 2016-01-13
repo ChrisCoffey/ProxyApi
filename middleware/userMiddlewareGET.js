@@ -263,28 +263,29 @@ getMiddleware.getFeaturedUsers = function (req, res, next) {
  * @param next
  */
 getMiddleware.userFollowerCount = function (req, res, next) {
-  firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
-      var count = 0;
-      var p1 = vals.USERID;
-      var userId = middleware.checkParam400(res, req.get(p1), p1);
-      //for every user in firebase, if they match the headerName, add them to the response result.
-      snapshot.forEach(function (firebaseUser) {
-        var user = firebaseUser.val();
-        var contacts = user.contacts;
-        if (contacts != null && typeof contacts != vals.UNDEFINED) {
-          for (var i = 0; i < contacts.length; i++) {
-            if (contacts[i] === userId) {
-              ++count;
-              return;
-            }
+  var p1 = vals.USERID;
+  var userId = middleware.checkParam400(res, req.get(p1), p1);
+  var count = 0;
+
+  middleware.firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
+    //for every user in firebase, if they match the headerName, add them to the response result.
+    snapshot.forEach(function (firebaseUser) {
+      var user = firebaseUser.val();
+      var contacts = user.contacts;
+      if (contacts != null && typeof contacts != vals.UNDEFINED) {
+        for (var i = 0; i < contacts.length; i++) {
+          if (contacts[i] === userId) {
+            ++count;
+            return;
           }
         }
-      });
-    }
-    , function (err) {
-      var errorMessage = "userFollowerCount failed: " + err;
-      middleware.logError(errorMessage, err, res, next);
+      }
     });
+    res.status(200).send(count);
+  }, function (err) {
+    var errorMessage = "userFollowerCount failed: " + err;
+    middleware.logError(errorMessage, err, res, next);
+  });
 };
 
 
