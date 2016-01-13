@@ -155,7 +155,7 @@ function getQueriedUsers(headerUsers, snapshot, isArray) {
  * @param result
  * @param name
  */
-function checkheaderUser(firebaseUser, name, result) {
+function checkHeaderUser(firebaseUser, name, result) {
   var data = firebaseUser.val();
   var capitalizedName = filterNameParams(name);
   var first = filterNameParams(data.first);
@@ -190,7 +190,7 @@ getMiddleware.searchUsers = function (req, res, next) {
     var name = middleware.checkParam400(res, req.get(p1), p1);
     //for every user in firebase, if they match the headerName, add them to the response result.
     snapshot.forEach(function (firebaseUser) {
-      checkheaderUser(firebaseUser, name, result);
+      checkHeaderUser(firebaseUser, name, result);
     });
     //return result data as json string
     res.status(200).json(result);
