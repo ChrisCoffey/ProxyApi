@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
+require("./middleware/core/db")
 var app = express();
 //var expressWs = require('express-ws')(app);
 

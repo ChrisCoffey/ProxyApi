@@ -1,6 +1,11 @@
 # IDEA/Android Studio project files, because the project can be imported from settings.gradle
 .idea/
 *.iml
-/node_modules
-tags
 
+# Vim, Ctags, etc...
+tags
+*.swp
+
+# Node / app server stuff
+/node_modules
+*.log
