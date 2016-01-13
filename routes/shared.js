@@ -1,10 +1,14 @@
-/**
- * Created by Evan on 11/17/15.
- */
+"use strict";
 var express = require("express");
 var middleware = require('../middleware/common');
-var sharedMiddleware = require('../middleware/sharedLinkMiddleware');
+var sharedMiddleware = require('../middleware/sharedLinkMiddlewarePUT');
 var router = express.Router();
-router.put("/", middleware.ensureFirebaseAuthenticated, sharedMiddleware.putSharedLinks);
+var SHARED = "/";
+
+/**
+ * Update shared links for users.
+ */
+router.route(SHARED)
+  .put(middleware.ensureFirebaseAuthenticated, sharedMiddleware.putSharedLinks);
 
 module.exports = router;

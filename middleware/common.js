@@ -1,6 +1,9 @@
 "use strict";
 var Firebase = require('firebase');
-var middleware = {firebaseStore: null};
+var FirebaseTokenGenerator = require("firebase-token-generator");
+var tokenGen = new FirebaseTokenGenerator("CcqAHb98loxjOoyzBJjvdCiYKFcT0h64jw2uhGDs");
+var vals = require('../middleware/middlewareGlobals');
+var middleware = {};
 middleware.firebaseStore = new Firebase("https://dazzling-torch-1917.firebaseio.com");
 
 /**
@@ -10,11 +13,11 @@ middleware.firebaseStore = new Firebase("https://dazzling-torch-1917.firebaseio.
  * @param next call next
  */
 middleware.ensureFirebaseAuthenticated = function (req, res, next) {
-  var authToken = req.query.auth;
+  var authToken = req.get("auth");
   if (authToken == null) {
-    authenticateProvider(req, res, next);
+    authenticateCustomAndroid(req, res, next);
   } else {
-    authenticateCustomToken(authToken, res, next);
+    authenticateCustomToken(authToken, req, res, next);
   }
 };
 
@@ -32,24 +35,20 @@ function authenticateCustomToken(authToken, res, next) {
 }
 
 /**
- * The request had no auth query param, check to see if it had a provider and token.
+ * The request had no auth header param, check to see if it had a provider and token.
  * @param req
  * @param res
  * @param next
  */
-function authenticateProvider(req, res, next) {
-  var authToken = req.query.token;
-  var authProvider = req.query.provider;
+function authenticateCustomAndroid(req, res, next) {
+  var authToken = req.get("token");
   if (authToken == null) {
     console.log("Null firebase token");
-    return res.status(401).send("401 required query param \"token\" missing");
-  }
-  if (authProvider == null) {
-    console.log("Null firebase token");
-    return res.status(401).send("401 required query param \"provider\" missing");
+    return res.status(401).send(middleware.get400ParamError("token"));
   }
 
-  middleware.firebaseStore.authWithOAuthToken(authProvider, authToken, function (error, authData) {
+  var fireToken = tokenGen.createToken({uid: authToken});
+  middleware.firebaseStore.authWithCustomToken(fireToken, function (error, authData) {
     if (error) {
       console.log("Authentication Failed!", error);
       res.status(401).send("Error authenticating with Firebase: ", error);
@@ -59,7 +58,7 @@ function authenticateProvider(req, res, next) {
       next()
     }
   });
-};
+}
 
 /**
  * Generates a GUID string.
@@ -78,6 +77,7 @@ middleware.guid = function () {
 };
 
 middleware.logError = function (errorMessage, err, res, next) {
+  res.status(400);
   console.log(errorMessage);
   return next(err);
 };
@@ -97,8 +97,19 @@ middleware.allowCrossDomainRequest = function (req, res, next) {
   // to the API (e.g. in case you use sessions)
   res.setHeader('Access-Control-Allow-Credentials', true);
 
-  // Pass to next layer of middleware
+  // Pass to next layer of common
   next();
+};
+
+middleware.get400ParamError = function (string) {
+  return "400 required header param \"string\" missing or undefined";
+};
+
+middleware.checkParam400 = function (param, name) {
+  if (param === null || typeof param === vals.UNDEFINED) {
+    res.status(400).json(middleware.get400ParamError(name));
+  }
+  return param
 };
 
 module.exports = middleware;
