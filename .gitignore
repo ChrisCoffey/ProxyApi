@@ -5,6 +5,7 @@
 # Vim, Ctags, etc...
 tags
 *.swp
+*.orig
 
 # Node / app server stuff
 /node_modules
