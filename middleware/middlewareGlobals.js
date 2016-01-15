@@ -19,6 +19,7 @@ common.GOOGLE_PERSON_URL = "/google/person";
 common.USERS = "users";
 common.USER = "user";
 common.USERID = "userId";
+common.CHANNEL = "channel";
 common.CHANNELID = "channelId";
 common.CONTACTID = "contactId";
 common.GROUPID = "groupId";

@@ -85,6 +85,23 @@ function updateUsersGroups(userId, groups, res, next) {
       res.status(200);
     }
   });
+
+  putMiddleware.updateUserChannel = function (req, res, next) {
+    console.log("data"+util.inspect(req.body));
+    var p1 = vals.USERID;
+    var p2 = vals.CHANNEL;
+    var userId = middleware.checkParam400(res, req.get(p1), p1);
+    var channel = middleware.checkParam400(res, req.body, p2);
+
+    middleware.firebaseStore.child(vals.USERS).child(userId).update(channel, function (err) {
+      if (err) {
+        var error = "Error updating user: " + err;
+        middleware.logError(error, err, res, next)
+      } else {
+        res.status(200).json(channel);
+      }
+    });
+  };
 }
 
 module.exports = putMiddleware;
