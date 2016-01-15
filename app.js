@@ -1,4 +1,7 @@
 var express = require('express');
+var app = express();
+var Firebase = require('firebase');
+var firebaseStore = getStore(app);
 var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
@@ -8,9 +11,6 @@ var users = require('./routes/users');
 var vals = require('./middleware/middlewareGlobals');
 require("./middleware/core/db");
 require("./middleware/streams/Runner");
-var app = express();
-//var expressWs = require('express-ws')(app);
-
 var rollbar = require('rollbar');
 var rollbarKey = "57fcf7c2515b4dd3916052ed09902fe8";
 
@@ -26,7 +26,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(vals.ROOT_URL, routes);
-app.use(vals.USERS_URL, users);
+app.use(vals.USERS_URL, users(express, firebaseStore));
 
 // Use the rollbar error handler to send exceptions to your rollbar account
 app.use(rollbar.errorHandler(rollbarKey));
@@ -51,6 +51,15 @@ if (app.get('env') === 'production') {
 function logError(err, next) {
   rollbar.reportMessage(err);
   next(err);
+}
+
+function getStore(app) {
+  var process = app.get('env') || 'development';
+  if (process === 'production') {
+    return new Firebase("https://dazzling-torch-1917.firebaseio.com");
+  } else {
+    return new Firebase("https://proxy-test.firebaseio.com");
+  }
 }
 
 module.exports = app;

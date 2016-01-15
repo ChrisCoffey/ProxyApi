@@ -2,7 +2,26 @@
 var middleware = require('../middleware/common');
 var sharedMiddleware = require('../middleware/sharedLinkMiddlewarePUT');
 var vals = require('../middleware/middlewareGlobals');
-var getMiddleware = {};
+var firebaseStore;
+var getMiddleware = (function () {
+  var instance;
+
+  function createInstance(store) {
+    var object = {};
+    firebaseStore = store;
+    return object;
+  }
+
+  return {
+    create: function (store) {
+      if (!instance) {
+        instance = createInstance(store);
+      }
+      return instance;
+    }
+  };
+
+})();
 
 /**
  * Get all users from Firebase. This returns a watered down version of a true User model object in the response.
@@ -12,7 +31,7 @@ var getMiddleware = {};
  * @param next
  */
 getMiddleware.getAllWebUsers = function (req, res, next) {
-  middleware.firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
+  firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
     res.status(200).json(getAllWebUsers(snapshot));
   }, function (err) {
     var errorMessage = "getAllWebUsers failed: " + err;
@@ -76,7 +95,7 @@ function getFullName(user) {
  * @param next
  */
 getMiddleware.getContacts = function (req, res, next) {
-  middleware.firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
+  firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
     var p1 = vals.USERS;
     var headerUsers = middleware.checkParam400(res, req.get(p1), p1);
     var isArray = headerUsers.constructor === Array;
@@ -165,7 +184,7 @@ function filterNameParams(string) {
  * @param next
  */
 getMiddleware.searchUsers = function (req, res, next) {
-  middleware.firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
+  firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
     var result = [];
     var p1 = vals.NAME;
     var name = middleware.checkParam400(res, req.get(p1), p1);
@@ -190,7 +209,7 @@ getMiddleware.searchUsers = function (req, res, next) {
 getMiddleware.getUser = function (req, res, next) {
   var p1 = vals.USERID;
   var userId = middleware.checkParam400(res, req.get(p1), p1);
-  middleware.firebaseStore.child(vals.USERS).child(userId).once(vals.VALUE, function (snapshot) {
+  firebaseStore.child(vals.USERS).child(userId).once(vals.VALUE, function (snapshot) {
     res.status(200).json(snapshot.val());
   }, function (err) {
     var errorMessage = "getUser failed: " + err;
@@ -209,7 +228,7 @@ getMiddleware.getFeaturedUsers = function (req, res, next) {
   var featuredUserIds = [];
   var featuredUsers = [];
   //get feature user id array
-  middleware.firebaseStore.child(vals.FEATURED).once(vals.VALUE, function (snapshot) {
+  firebaseStore.child(vals.FEATURED).once(vals.VALUE, function (snapshot) {
     snapshot.forEach(function (userId) {
       featuredUserIds.push(userId.val());
     });
@@ -218,7 +237,7 @@ getMiddleware.getFeaturedUsers = function (req, res, next) {
     res.status(400).send("Error authenticating with firebase: ", err);
   });
   //get actual featured users and return them
-  middleware.firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
+  firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
     //for every user in firebase, if they match the featured user id, add them to the response list.
     snapshot.forEach(function (firebaseUser) {
       var user = firebaseUser.val();
@@ -244,7 +263,7 @@ getMiddleware.getFeaturedUsers = function (req, res, next) {
  * @param next
  */
 getMiddleware.userFollowerCount = function (req, res, next) {
-  middleware.firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
+  firebaseStore.child(vals.USERS).once(vals.VALUE, function (snapshot) {
       var count = 0;
       var p1 = vals.USERID;
       var userId = middleware.checkParam400(res, req.get(p1), p1);
@@ -276,7 +295,7 @@ getMiddleware.userFollowerCount = function (req, res, next) {
  * @param next
  */
 getMiddleware.sharedLink = function (req, res, next) {
-  middleware.firebaseStore.child(vals.SHARED).once(vals.VALUE, function (snapshot) {
+  firebaseStore.child(vals.SHARED).once(vals.VALUE, function (snapshot) {
     var p1 = vals.GROUPID;
     var groupId = middleware.checkParam400(res, req.get(p1), p1);
     var createLink = true;

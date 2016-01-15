@@ -2,7 +2,26 @@
 var util = require('util');
 var middleware = require('../middleware/common');
 var vals = require('../middleware/middlewareGlobals');
-var putMiddleware = {};
+var firebaseStore;
+var putMiddleware = (function () {
+  var instance;
+
+  function createInstance(store) {
+    var object = {};
+    firebaseStore = store;
+    return object;
+  }
+
+  return {
+    create: function (store) {
+      if (!instance) {
+        instance = createInstance(store);
+      }
+      return instance;
+    }
+  };
+
+})();
 
 putMiddleware.updateUser = function (req, res, next) {
   console.log("data"+util.inspect(req.body));
@@ -11,7 +30,7 @@ putMiddleware.updateUser = function (req, res, next) {
   var userId = middleware.checkParam400(res, req.get(p1), p1);
   var user = middleware.checkParam400(res, req.body, p2);
 
-  middleware.firebaseStore.child(vals.USERS).child(userId).update(user, function (err) {
+  firebaseStore.child(vals.USERS).child(userId).update(user, function (err) {
     if (err) {
       var error = "Error updating user: " + err;
       middleware.logError(error, err, res, next)
@@ -28,7 +47,7 @@ putMiddleware.updateUserVersion = function (req, res, next) {
   var userId = middleware.checkParam400(res, req.get(p1), p1);
   version.androidVersion = middleware.checkParam400(res, req.get(p2), p2);
 
-  middleware.firebaseStore.child(vals.USERS).child(userId).update(version, function (err) {
+  firebaseStore.child(vals.USERS).child(userId).update(version, function (err) {
     if (err) {
       var error = "Error updating user version: " + err;
       middleware.logError(error, err, res, next)
@@ -58,7 +77,7 @@ putMiddleware.updateUserGroups = function (req, res, next) {
 };
 
 function updateUsersGroups(userId, groups, res, next) {
-  middleware.firebaseStore.child(vals.USERS).child(userId).child(vals.GROUPS).update(groups, function (error) {
+  firebaseStore.child(vals.USERS).child(userId).child(vals.GROUPS).update(groups, function (error) {
     if (error) {
       res.status(400).send("Error updating user groups: " + error);
       next(error)
