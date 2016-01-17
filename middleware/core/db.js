@@ -1,17 +1,18 @@
+const S = require('./appStates.js');
 var mongoose = require('mongoose');
 var dbUri = "mongodb://localhost/proxy"
 
 mongoose.connect(dbUri);
 
-mongoose.connection.on('connected', function(){
+mongoose.connection.on( S.CONNECTED, function(){
     console.log('Mongoose connected to ' + dbUri);
 });
 
-mongoose.connection.on('error', function(er){
+mongoose.connection.on( S.ERROR, function(er){
     console.log('Mongoose error: ' + er);
 });
 
-mongoose.connection.on('disconnected', function(){
+mongoose.connection.on( S.DISCONNECTED, function(){
     console.log('Mongoose disconnected from ' + dbUri);
 });
 
@@ -22,7 +23,7 @@ var closeConnection = function (msg, callback) {
     });
 };
 
-process.on('SIGINT', function(){
+process.on(S.SIGINT, function(){
     closeConnection('signalled termination', function(){
         process.exit(0); 
     });
