@@ -1,14 +1,14 @@
 "use strict";
-var express = require("express");
-var middleware = require('../middleware/common');
-var sharedMiddleware = require('../middleware/sharedLinkMiddlewarePUT');
-var router = express.Router();
-var SHARED = "/";
+const express = require("express"),
+  path = require('../middleware/middlewareGlobals'),
+  auth = require('../middleware/authentication'),
+  sharedMiddleware = require('../middleware/sharedLinkMiddleware'),
+  router = express.Router();
 
 /**
  * Update shared links for users.
  */
 router.route(SHARED)
-  .put(middleware.ensureFirebaseAuthenticated, sharedMiddleware.putSharedLinks);
+  .put(auth.ensureFirebaseAuthenticated, sharedMiddleware.putSharedLinks);
 
 module.exports = router;
