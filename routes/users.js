@@ -1,81 +1,79 @@
 "use strict";
-var google = require('../middleware/googleMiddleware');
-var getMessage = require('../middleware/messagesMiddlewareGET');
-var vals = require('../middleware/middlewareGlobals');
+const google = require('../middleware/googlePersonMiddleware'),
+  getMessage = require('../middleware/messagesMiddleware'),
+  path = require('../middleware/middlewareGlobals'),
+  auth = require('../middleware/authentication'),
+  express = require('express'),
+  app = express.Router();
 
-module.exports = function (express, store) {
-  var app = express.Router();
-  var auth = require('../middleware/authentication');
-  auth.create(store);
-  var getUser = require('../middleware/userMiddlewareGET');
-  getUser.create(store);
-  var putUser = require('../middleware/userMiddlewarePUT');
-  putUser.create(store);
+module.exports = function (store) {
+  const UserMiddleware = require('../middleware/userMiddleware'),
+  user = new UserMiddleware(store);
   /**
    * Base Users table lookup.
    */
-  app.route(vals.ROOT_URL)
-    .get(auth.ensureFirebaseAuthenticated, getUser.getContacts);
+  app.route(path.ROOT_URL)
+    .get(auth.ensureFirebaseAuthenticated, user.getContacts);
   /**
    * "Webusers", users just the way Galen wants them.
    */
-  app.route(vals.WEBUSERS_URL)
-    .get(auth.ensureFirebaseAuthenticated, auth.allowCrossDomainRequest, getUser.getAllWebUsers);
+  app.route(path.WEBUSERS_URL)
+    .get(auth.ensureFirebaseAuthenticated, auth.allowCrossDomainRequest, user.getAllWebUsers);
   /**
    * Search for users bases off their first, last and first + last names.
    */
-  app.route(vals.SEARCH_URL)
-    .get(auth.ensureFirebaseAuthenticated, getUser.searchUsers);
+  app.route(path.SEARCH_URL)
+    .get(auth.ensureFirebaseAuthenticated, user.searchUsers);
   /**
    * Get featured users objects based off the featured user tabled ids
    */
-  app.route(vals.FEATURED_URL)
-    .get(auth.ensureFirebaseAuthenticated, auth.allowCrossDomainRequest, getUser.getFeaturedUsers);
+  app.route(path.FEATURED_URL)
+    .get(auth.ensureFirebaseAuthenticated, auth.allowCrossDomainRequest, user.getFeaturedUsers);
   /**
    * Update a user.
    */
-  app.route(vals.USER_URL)
+  app.route(path.USER_URL)
     .all(auth.ensureFirebaseAuthenticated)
-    .get(getUser.getUser)
-    .put(putUser.updateUser);
+    .get(user.getUser)
+    .put(user.updateUser);
   /**
    * Update user contacts.
    */
-  app.route(vals.USER_CONTACTS_URL);
+  app.route(path.USER_CONTACTS_URL);
   /**
    * Update user channels.
    */
-  app.route(vals.USER_CHANNELS_URL);
+  app.route(path.USER_CHANNELS_URL);
   /**
    * Update user groups.
    */
-  app.route(vals.USER_GROUPS_URL)
-    .put(auth.ensureFirebaseAuthenticated, putUser.updateUserGroups);
+  app.route(path.USER_GROUPS_URL)
+    .put(auth.ensureFirebaseAuthenticated, user.updateUserGroups);
   /**
    * Calculate a users follower count or contacts following them.
    */
-  app.route(vals.USER_FOLLOWER_COUNT_URL)
-    .get(auth.ensureFirebaseAuthenticated, getUser.userFollowerCount);
+  app.route(path.USER_FOLLOWER_COUNT_URL)
+    .get(auth.ensureFirebaseAuthenticated, user.userFollowerCount);
   /**
    * Update a user's shared link.
    */
-  app.route(vals.USER_SHARED_URL)
-    .get(auth.ensureFirebaseAuthenticated, getUser.sharedLink);
+  app.route(path.USER_SHARED_URL)
+    .get(auth.ensureFirebaseAuthenticated, user.sharedLink);
   /**
    * Update a users android version number.
    */
-  app.route(vals.USER_VERSION_URL)
-    .put(auth.ensureFirebaseAuthenticated, putUser.updateUserVersion);
+  app.route(path.USER_VERSION_URL)
+    .put(auth.ensureFirebaseAuthenticated, user.updateUserVersion);
   /**
    * Update a users messages.
    */
-  app.route(vals.MESSAGES_URL)
+  app.route(path.MESSAGES_URL)
     .get(auth.ensureFirebaseAuthenticated, getMessage.getUserMessages);
   /**
    * Create a new person from google credentials.
    */
-  app.route(vals.GOOGLE_PERSON_URL)
+  app.route(path.GOOGLE_PERSON_URL)
     .get(google.getGooglePerson);
 
   return app;
-}
+};
