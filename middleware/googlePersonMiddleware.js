@@ -22,12 +22,11 @@ googleMiddleware.getGooglePerson = function (req, res, next) {
       var error = new Error("Error retrieving google Person " + err);
       middleware.logError(error, err, res, next);
     } else {
-      res.status(response.statusCode).json(JSON.parse(body));
+      res.status(response.statusCode).json(body);
     }
   };
 
   httpRequest(options, callback);
 };
-
 
 module.exports = googleMiddleware;
