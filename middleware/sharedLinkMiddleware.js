@@ -7,7 +7,7 @@ var SharedMiddleware = function(store){
   firebaseStore = store;
 };
 _.extend(SharedMiddleware.prototype, {
-  putSharedLinks: function (req, res, next) {
+  putSharedLinks: function (req, res) {
     var result = [];
     var p1 = vals.USERID;
     var p2 = vals.GROUPID;
