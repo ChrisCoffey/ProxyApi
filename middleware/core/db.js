@@ -1,6 +1,6 @@
 const S = require('./appStates.js');
 var mongoose = require('mongoose');
-var dbUri = "mongodb://localhost/proxy"
+var dbUri = process.env.MONGO_PATH;
 
 mongoose.connect(dbUri);
 
@@ -28,3 +28,5 @@ process.on(S.SIGINT, function(){
         process.exit(0); 
     });
 });
+
+require('./models')

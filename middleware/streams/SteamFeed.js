@@ -1,18 +1,48 @@
-var Steam = require('steam');
-var username = process.env.STEAM_USER;
-var password = process.env.STEAM_PW;
+var mongoose = require('mongoose');
+var util = require('util');
+var http = require('http');
+var steamHost = "api.steampowered.com";
+var key = process.env.STEAM_KEY;
+//use this to resolve a user's vanity url-> http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=EE9DBBAF6AB57D4A48378D01FCE47C0A&vanityurl=dwittzexmachina
+var ISteamUser = {
+    name:"ISteamUser",
+    methods: {
+        getUser: {
+            name: "GetPlayerSummaries",
+            version: "v0002",
+            paramF: function(ids) { return util.format("&steamids=%s" ,ids)}
+        }
+    }    
+};
 
-//NOTE this code will be spawned by the runner
+function makeRequest(callObj, name, args){
+    var url = util.format("/%s/%s/%s", 
+            callObj.name, 
+            callObj.methods[name].name, 
+            callObj.methods[name].version);
 
-var steamClient = new Steam.SteamClient();
-var steamUser = new Steam.SteamUser(steamClient);
-steamClient.connect();
-steamClient.on('connected', function() {
-      steamUser.logOn({
-              account_name: 'username',
-              password: 'password'
+    var queryParams = util.format("?key=%s", key);
+    if(callObj.methods[name].paramF != undefined){
+        queryParams = queryParams + callObj.methods[name].paramF(args);
+    }
+
+    return url + queryParams;
+}
+
+function processBatch(userIds) {
+    var requestString = makeRequest(ISteamUser, 'getUser', userIds);
+    
+    http.get({
+        hostname: steamHost,
+        port: 80,
+        path: requestString,
+        agent: false  
+        }, function(res) {
+            res.on("data", function(chunk) {
+                console.log("BODY: " + chunk);
             });
-});
-steamClient.on('logOnResponse', function() { /* ... */});
+        }
+    );
+}
 
-//need to create a feed manager
+processBatch(process.argv[2]);
