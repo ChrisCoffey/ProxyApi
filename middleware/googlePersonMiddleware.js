@@ -29,4 +29,5 @@ googleMiddleware.getGooglePerson = function (req, res, next) {
   httpRequest(options, callback);
 };
 
+//noinspection JSUnresolvedVariable
 module.exports = googleMiddleware;

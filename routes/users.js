@@ -1,14 +1,18 @@
 "use strict";
 const google = require('../middleware/googlePersonMiddleware'),
-  getMessage = require('../middleware/messagesMiddleware'),
   path = require('../middleware/middlewareGlobals'),
-  auth = require('../middleware/authentication'),
   express = require('express'),
   app = express.Router();
 
 //noinspection JSUnresolvedVariable
 module.exports = function (store) {
-  const user = new require('../middleware/userMiddleware')(store);
+  const
+    UserMiddleware = require('../middleware/userMiddleware'),
+    user = new UserMiddleware(store),
+    Authentication = new require('../middleware/authentication'),
+    auth = new Authentication(store),
+    Messages = require('../middleware/messagesMiddleware'),
+    messages = new Messages(store);
   /**
    * Base Users table lookup.
    */
@@ -79,7 +83,7 @@ module.exports = function (store) {
    */
   app.route(path.MESSAGES_URL)
     .all(auth.ensureFirebaseAuthenticated)
-    .get(getMessage.getUserMessages);
+    .get(messages.getUserMessages);
   /**
    * Create a new person from google credentials.
    */

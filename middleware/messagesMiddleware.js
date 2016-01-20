@@ -1,18 +1,23 @@
 "use strict";
 var middleware = require('../middleware/common');
-var vals =require('../middleware/middlewareGlobals');
-var getMiddleware = {};
+var vals = require('../middleware/middlewareGlobals');
 
-getMiddleware.getUserMessages = function (req, res, next) {
-  var p1 = vals.USERID;
-  var userId = middleware.checkParam400(res, req.get(p1), p1);
-  middleware.firebaseStore.child(vals.MESSAGES).once(vals.VALUE, function (snapshot) {
-    res.status(200).json(getPendingMessages(userId, snapshot));
-  }, function (err) {
-    var errorMessage = "getUserMessages failed: " + err;
-    middleware.logError(errorMessage, err, res, next)
-  });
+var MessageMiddleware = function (store) {
+  this._firebaseStore = store;
 };
+
+_.extend(MessageMiddleware.prototype, {
+  getUserMessages: function (req, res, next) {
+    var p1 = vals.USERID;
+    var userId = middleware.checkParam400(res, req.get(p1), p1);
+    this._firebaseStore.child(vals.MESSAGES).once(vals.VALUE, function (snapshot) {
+      res.status(200).json(getPendingMessages(userId, snapshot));
+    }, function (err) {
+      var errorMessage = "getUserMessages failed: " + err;
+      middleware.logError(errorMessage, err, res, next)
+    });
+  }
+});
 
 /**
  * Get the pending message objects for the specified user id.
@@ -31,4 +36,5 @@ function getPendingMessages(userId, snapshot) {
   return userMessages;
 }
 
-module.exports = getMiddleware;
+//noinspection JSUnresolvedVariable
+module.exports = MessageMiddleware;

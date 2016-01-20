@@ -8,7 +8,7 @@ const express = require("express"),
 /**
  * Update shared links for users.
  */
-router.route(SHARED)
+router.route(path.SHARED)
   .put(auth.ensureFirebaseAuthenticated, sharedMiddleware.putSharedLinks);
 
 module.exports = router;

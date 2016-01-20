@@ -55,4 +55,5 @@ middleware.createNewAndroidUser = function (user) {
   return newUser;
 };
 
+//noinspection JSUnresolvedVariable
 module.exports = middleware;

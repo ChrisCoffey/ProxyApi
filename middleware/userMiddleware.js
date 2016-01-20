@@ -9,140 +9,20 @@ var UserMiddleware = function (store) {
 };
 
 /**
- * Get queried users from a firebase user table snapshot
- * @param headerUsers
- * @param snapshot
- * @param isArray
- * @returns {Array}
- */
-function getQueriedUsers(headerUsers, snapshot, isArray) {
-  var result = [];
-  //for every user in firebase, if they're in the header list, add them to the response result.
-  snapshot.forEach(function (firebaseUser) {
-    var data = firebaseUser.val();
-    var id = data.id;
-    var length = headerUsers.length;
-
-    if (length != 0) {
-      for (var i = 0; i < length; ++i) {
-        if (isArray) {
-          if (headerUsers[i] == id) {
-            //push result data and remove user from the search list
-            result.push(data);
-            //use i's value and then decrement
-            headerUsers.splice(i--, 1);
-          }
-        }
-        else {
-          if (headerUsers == id) {
-            //there was a single user header, push result data and exit loop
-            result.push(data);
-            return true;
-          }
-        }
-      }
-    }
-    else {
-      // if there are no more queried users to find, exit the loop
-      return true;
-    }
-  });
-  return result;
-}
-/**
- * Get the full name concatenation of a user. Users are not required to have last names, so trim the fat if its empty
- * or undefined.
- * @param user
- * @returns {string}
- */
-function getFullName(user) {
-  var first = user.first;
-  var last = user.last;
-  var name;
-  if (first !== null && typeof first !== vals.UNDEFINED) {
-    if (last !== null && typeof last !== vals.UNDEFINED) {
-      name = user.first + " " + user.last;
-    } else {
-      name = user.first;
-    }
-  } else {
-    name = user.last;
-  }
-  return name.trim();
-}
-
-/**
- * Check if string is null or undefined and if so, return an empty string.
- * Otherwise return the input string converted to uppercase so one can match without case sensitivity.
- * @param snapshot input header name
- * @returns {Array} uppercase input
- */
-function getWebUsers(snapshot) {
-  var userArray = [];
-  snapshot.forEach(function (firebaseUser) {
-    userArray.push(getWebUser(firebaseUser.val()));
-  });
-  return userArray;
-}
-
-/**
- * Create a user from a firebase user snapshot val.
- * @param user
- * @returns {{id: string, name: string, profileURL: string}}
- */
-function getWebUser(user) {
-  var webUser = {id: "", name: "", profileURL: ""};
-  webUser.id = user.id;
-  webUser.name = getFullName(user);
-  webUser.profileURL = user.profileURL;
-  return webUser;
-}
-
-/**
- * Capitalize the firebase user's name and the queried string for comparison.
- * @param firebaseUser
- * @param result
- * @param name queried
- */
-function compareUserToQuery(firebaseUser, name, result) {
-  var data = firebaseUser.val();
-  var capitalizedName = filterNameParams(name);
-  var first = filterNameParams(data.first);
-  var last = filterNameParams(data.last);
-  var fullname = first + " " + last;
-  // if the names aren't empty and the fullname starts with the header name;
-  if (fullname.indexOf(capitalizedName) === 0) {
-    result.push(data);
-  }
-}
-
-/**
- * Check if string is null or undefined and if so, return an empty string.
- * Otherwise return the input string converted to uppercase so one can match without case sensitivity.
- * @param string input header name
- * @returns {string} uppercase input
- */
-function filterNameParams(string) {
-  //noinspection JSUnresolvedFunction
-  return (string !== null && typeof string !== vals.UNDEFINED) ? string.toUpperCase() : "";
-}
-
-function modifyUserGroups(userId, groups, res, next) {
-  this._firebaseStore.child(vals.USERS).child(userId).child(vals.GROUPS)
-    .update(groups, function (error) {
-      if (error) {
-        res.status(400).send("Error updating user groups: " + error);
-        next(error)
-      } else {
-        res.status(200);
-      }
-    });
-}
-
-/**
  * Functions for module export.
  */
 _.extend(UserMiddleware.prototype, {
+  modifyUserGroups: function (userId, groups, res, next) {
+    this._firebaseStore.child(vals.USERS).child(userId).child(vals.GROUPS)
+      .update(groups, function (error) {
+        if (error) {
+          res.status(400).send("Error updating user groups: " + error);
+          next(error)
+        } else {
+          res.status(200);
+        }
+      });
+  },
   updateUserGroups: function (req, res, next) {
     // we don't check these params for 400 responses because either could be null,
     // this function can be broken up if we want into updateGroup() and updateGroups()
@@ -151,11 +31,11 @@ _.extend(UserMiddleware.prototype, {
     var userId = middleware.checkParam400(res, req.get(vals.USERID), vals.USERID);
     // we check to see if there are "groups" in the header
     if (groups !== null || typeof groups !== vals.UNDEFINED) {
-      modifyUserGroups(userId, groups, res, next);
+      this.modifyUserGroups(userId, groups, res, next);
     }
     // if there aren't any "groups" then there is most likely a "group" header param
     if (group !== null || typeof group !== vals.UNDEFINED) {
-      modifyUserGroups(userId, group, res, next);
+      this.modifyUserGroups(userId, group, res, next);
     } else {
       res.status(400).json(middleware.get400ParamError(vals.GROUP));
     }
@@ -411,5 +291,125 @@ _.extend(UserMiddleware.prototype, {
     });
   }
 });
+
 //noinspection JSUnresolvedVariable
 module.exports = UserMiddleware;
+
+/**
+ * Get queried users from a firebase user table snapshot
+ * @param headerUsers
+ * @param snapshot
+ * @param isArray
+ * @returns {Array}
+ */
+function getQueriedUsers(headerUsers, snapshot, isArray) {
+  var result = [];
+  //for every user in firebase, if they're in the header list, add them to the response result.
+  snapshot.forEach(function (firebaseUser) {
+    var data = firebaseUser.val();
+    var id = data.id;
+    var length = headerUsers.length;
+
+    if (length != 0) {
+      for (var i = 0; i < length; ++i) {
+        if (isArray) {
+          if (headerUsers[i] == id) {
+            //push result data and remove user from the search list
+            result.push(data);
+            //use i's value and then decrement
+            headerUsers.splice(i--, 1);
+          }
+        }
+        else {
+          if (headerUsers == id) {
+            //there was a single user header, push result data and exit loop
+            result.push(data);
+            return true;
+          }
+        }
+      }
+    }
+    else {
+      // if there are no more queried users to find, exit the loop
+      return true;
+    }
+  });
+  return result;
+}
+/**
+ * Get the full name concatenation of a user. Users are not required to have last names, so trim the fat if its empty
+ * or undefined.
+ * @param user
+ * @returns {string}
+ */
+function getFullName(user) {
+  var first = user.first;
+  var last = user.last;
+  var name;
+  if (first !== null && typeof first !== vals.UNDEFINED) {
+    if (last !== null && typeof last !== vals.UNDEFINED) {
+      name = user.first + " " + user.last;
+    } else {
+      name = user.first;
+    }
+  } else {
+    name = user.last;
+  }
+  return name.trim();
+}
+
+/**
+ * Check if string is null or undefined and if so, return an empty string.
+ * Otherwise return the input string converted to uppercase so one can match without case sensitivity.
+ * @param snapshot input header name
+ * @returns {Array} uppercase input
+ */
+function getWebUsers(snapshot) {
+  var userArray = [];
+  snapshot.forEach(function (firebaseUser) {
+    userArray.push(getWebUser(firebaseUser.val()));
+  });
+  return userArray;
+}
+
+/**
+ * Create a user from a firebase user snapshot val.
+ * @param user
+ * @returns {{id: string, name: string, profileURL: string}}
+ */
+function getWebUser(user) {
+  var webUser = {id: "", name: "", profileURL: ""};
+  webUser.id = user.id;
+  webUser.name = getFullName(user);
+  webUser.profileURL = user.profileURL;
+  return webUser;
+}
+
+/**
+ * Capitalize the firebase user's name and the queried string for comparison.
+ * @param firebaseUser
+ * @param result
+ * @param name queried
+ */
+function compareUserToQuery(firebaseUser, name, result) {
+  var data = firebaseUser.val();
+  var capitalizedName = filterNameParams(name);
+  var first = filterNameParams(data.first);
+  var last = filterNameParams(data.last);
+  var fullname = first + " " + last;
+  // if the names aren't empty and the fullname starts with the header name;
+  if (fullname.indexOf(capitalizedName) === 0) {
+    result.push(data);
+  }
+}
+
+/**
+ * Check if string is null or undefined and if so, return an empty string.
+ * Otherwise return the input string converted to uppercase so one can match without case sensitivity.
+ * @param string input header name
+ * @returns {string} uppercase input
+ */
+function filterNameParams(string) {
+  //noinspection JSUnresolvedFunction
+  return (string !== null && typeof string !== vals.UNDEFINED) ? string.toUpperCase() : "";
+}
