@@ -3,6 +3,7 @@ var util = require('util');
 var http = require('http');
 var steamHost = "api.steampowered.com";
 var key = process.env.STEAM_KEY;
+//use this to resolve a user's vanity url-> http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=EE9DBBAF6AB57D4A48378D01FCE47C0A&vanityurl=dwittzexmachina
 var ISteamUser = {
     name:"ISteamUser",
     methods: {
@@ -37,7 +38,6 @@ function processBatch(userIds) {
         path: requestString,
         agent: false  
         }, function(res) {
-            console.log(res); 
             res.on("data", function(chunk) {
                 console.log("BODY: " + chunk);
             });
