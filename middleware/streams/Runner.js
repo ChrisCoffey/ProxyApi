@@ -13,7 +13,7 @@ var launchLoop = function(ls, i){
     });
 };
 
-var x = _.range(10)
+var x = _.range(10);
 _.each(x, function(n, i, ls){
     launchLoop(ls, i);
 });

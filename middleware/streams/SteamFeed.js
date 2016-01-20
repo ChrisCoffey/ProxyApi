@@ -1,6 +1,6 @@
 var Steam = require('steam');
-var username = process.env.STEAM_USER
-var password = process.env.STEAM_PW
+var username = process.env.STEAM_USER;
+var password = process.env.STEAM_PW;
 
 //NOTE this code will be spawned by the runner
 
