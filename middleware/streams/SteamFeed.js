@@ -1,10 +1,11 @@
-const
-    db = require('../core/db.js'),
-    M = require('mongoose'),
+var
+    _ = require('underscore'),
     util = require('util'),
     http = require('http'),
     steamHost = "api.steampowered.com",
     key = process.env.STEAM_KEY;
+    db = require('../core/db.js'),
+    M = require('mongoose');
 //use this to resolve a user's vanity url-> http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=EE9DBBAF6AB57D4A48378D01FCE47C0A&vanityurl=dwittzexmachina
 const ISteamUser = {
     name:"ISteamUser",
@@ -30,6 +31,32 @@ function makeRequest(callObj, name, args){
 
     return url + queryParams;
 }
+function parseResponse(js) {
+    var responseBody = JSON.parse(js).response;
+    var players = responseBody.players;
+    
+    return _.map(players, function(player){
+        return {
+            source: "Steam",
+            user: player.personaname,
+            type: "Inactive"
+        };
+    });
+}
+
+var childSchema = new M.Schema({ source: 'string', user: 'string', type: 'string' });
+
+var parentSchema = new M.Schema({
+  children: [childSchema]
+});
+var Parent = M.model('Parent', parentSchema);
+var p = new Parent({children: []});
+
+function save(messages) {
+    console.log(messages);
+    p.children.push(messages[0]);
+    console.log(p.children);
+}
 
 function processBatch(userIds) {
     var requestString = makeRequest(ISteamUser, 'getUser', userIds);
@@ -40,24 +67,9 @@ function processBatch(userIds) {
         path: requestString,
         agent: false  
         }, function(res) { //todo factor this out into another function
-            res.on("data", function(chunk) {
-                console.log("BODY: " + chunk);
-                var ce = M.model('CurrentEvents');
-
-                var x = ce.find({}).exec(function(err, docs){ console.log(docs);});
-                console.log(x);
-
-                ce.save({ events:[ 
-                        {
-                            source: "Steam",
-                            user: JSON.parse(chunk).response.players[0].personaname,
-                            type: "PLaying a Game"
-                        }
-                    ]
-                    }
-                )}
-            )}
-    );
+            res.on("data", function(chunk) { _.compose(save, parseResponse)(chunk) })
+            }
+   );
 }
 
 processBatch(process.argv[2]);

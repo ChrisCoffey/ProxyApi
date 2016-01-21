@@ -1,18 +1,19 @@
 var M = require('mongoose');
 
 var activityEvent = new M.Schema({
-    source: String,
-    user: String,
-    type: String
+    source: 'string',
+    user: 'string',
+    type: 'string' 
 });
 
 var activityFeed = new M.Schema({ 
     timestamp: Date,
     events: [activityEvent]
 });
-M.model('ActiityFeed', activityFeed, 'ActivityFeed');
+exports.ActivityFeed = M.model('ActiityFeed', activityFeed);
 
 var currentEvents = new M.Schema({
     events: [activityEvent]
 });
-M.model('CurrentEvents', currentEvents, 'CurrentEvents');
+
+exports.CurrentEvents = M.model('CurrentEvents', currentEvents);
