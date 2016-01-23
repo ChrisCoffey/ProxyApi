@@ -6,14 +6,12 @@ const
 
 //This would be triggered by a timer
 var launchLoop = function(ls, i){
-    var p = cp.fork("./middleware/streams/StreamTest.js", [ls]);
+    var p = cp.fork("./middleware/streams/SteamFeed.js", [ls]);
 
     p.on(S.close, function(exitCode){
         console.log("ran process "+ i + "happily. Exited with code "+ exitCode);
     });
 };
 
-var x = _.range(10);
-_.each(x, function(n, i, ls){
-    launchLoop(ls, i);
-});
+var x = [76561198256538946];
+launchLoop(x, 1);
