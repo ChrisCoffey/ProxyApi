@@ -1,18 +1,18 @@
-const S = require('./appStates.js');
+const states = require('./appstatestates.js');
 var mongoose = require('mongoose');
 var dbUri = process.env.MONGO_PATH;
 
 mongoose.connect(dbUri);
 
-mongoose.connection.on( S.CONNECTED, function(){
+mongoose.connection.on( states.CONNECTED, function(){
     console.log('Mongoose connected to ' + dbUri);
 });
 
-mongoose.connection.on( S.ERROR, function(er){
+mongoose.connection.on( states.ERROR, function(er){
     console.log('Mongoose error: ' + er);
 });
 
-mongoose.connection.on( S.DISCONNECTED, function(){
+mongoose.connection.on( states.DISCONNECTED, function(){
     console.log('Mongoose disconnected from ' + dbUri);
 });
 
@@ -23,7 +23,7 @@ var closeConnection = function (msg, callback) {
     });
 };
 
-process.on(S.SIGINT, function(){
+process.on(states.SIGINT, function(){
     closeConnection('signalled termination', function(){
         process.exit(0); 
     });
