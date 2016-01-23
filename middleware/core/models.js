@@ -19,6 +19,7 @@ var CurrentEvent = mongoose.model('CurrentEvents', activityEvent, 'current_event
 
 exports.saveNewEvent = function(evnt, onError){
     var ce = new CurrentEvent(evnt);
+    console.log(evnt);
     ce.save(onError);
 };
 
