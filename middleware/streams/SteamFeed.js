@@ -4,8 +4,8 @@ var
     http = require('http'),
     steamHost = "api.steampowered.com",
     key = process.env.STEAM_KEY;
-    db = require('../core/db.js'),
-    M = require('mongoose');
+    M = require('../core/models.js')
+
 //use this to resolve a user's vanity url-> http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=EE9DBBAF6AB57D4A48378D01FCE47C0A&vanityurl=dwittzexmachina
 const ISteamUser = {
     name:"ISteamUser",
@@ -44,18 +44,11 @@ function parseResponse(js) {
     });
 }
 
-var childSchema = new M.Schema({ source: 'string', user: 'string', type: 'string' });
-
-var parentSchema = new M.Schema({
-  children: [childSchema]
-});
-var Parent = M.model('Parent', parentSchema);
-var p = new Parent({children: []});
-
 function save(messages) {
-    console.log(messages);
-    p.children.push(messages[0]);
-    console.log(p.children);
+    _.each(messages, function(m, i, ls){
+        console.log(m);
+        M.CurrentEvents.events.push(m);
+    });
 }
 
 function processBatch(userIds) {
