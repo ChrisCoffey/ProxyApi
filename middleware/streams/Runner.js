@@ -1,14 +1,14 @@
 const
-    S = require('../core/appStates.js');
-    fs = require('fs');
-    cp = require('child_process');
+    state = require('../core/appStates.js');
+    fileSys = require('fs');
+    child = require('child_process');
     _ = require('underscore');
 
 //This would be triggered by a timer
 var launchLoop = function(ls, i){
-    var p = cp.fork("./middleware/streams/SteamFeed.js", [ls]);
+    var p = child.fork("./middleware/streams/SteamFeed.js", [ls]);
 
-    p.on(S.close, function(exitCode){
+    p.on(state.close, function(exitCode){
         console.log("ran process "+ i + "happily. Exited with code "+ exitCode);
     });
 };
