@@ -21,3 +21,4 @@ exports.saveNewEvent = function(evnt, onError){
     var ce = new CurrentEvent(evnt);
     ce.save(onError);
 };
+
