@@ -1,4 +1,4 @@
-const states = require('./appstatestates.js');
+const states = require('./appStates.js');
 var mongoose = require('mongoose');
 var dbUri = process.env.MONGO_PATH;
 
