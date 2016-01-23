@@ -29,4 +29,4 @@ process.on(S.SIGINT, function(){
     });
 });
 
-require('./models')
+require('./models');

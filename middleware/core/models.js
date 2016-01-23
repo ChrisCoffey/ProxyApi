@@ -1,5 +1,4 @@
-var mongoose= require('mongoose'),
-    _ = require('underscore');
+var mongoose= require('mongoose');
 
 
 var activityEvent = new mongoose.Schema({
@@ -21,4 +20,4 @@ var CurrentEvent = mongoose.model('CurrentEvents', activityEvent, 'current_event
 exports.saveNewEvent = function(evnt, onError){
     var ce = new CurrentEvent(evnt);
     ce.save(onError);
-}
+};
