@@ -29,4 +29,4 @@ process.on(states.SIGINT, function(){
     });
 });
 
-require('./models')
+require('./models');
