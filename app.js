@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var vals = require('./middleware/middlewareGlobals');
-require("./middleware/core/db");
+require("./middleware/core/db.js");
 require("./middleware/streams/Runner");
 var app = express();
 //var expressWs = require('express-ws')(app);

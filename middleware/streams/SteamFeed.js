@@ -4,7 +4,8 @@ var
     http = require('http'),
     steamHost = "api.steampowered.com",
     key = process.env.STEAM_KEY;
-    M = require('../core/models.js')
+    models = require('../core/models.js'),
+    require('../core/db.js'); //necessary b/c of the process fork
 
 //use this to resolve a user's vanity url-> http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=EE9DBBAF6AB57D4A48378D01FCE47C0A&vanityurl=dwittzexmachina
 const ISteamUser = {
@@ -44,10 +45,9 @@ function parseResponse(js) {
     });
 }
 
-function save(messages) {
-    _.each(messages, function(m, i, ls){
-        console.log(m);
-        M.CurrentEvents.events.push(m);
+function save (messages){
+    _.each(messages, function(msg){
+        models.saveNewEvent(msg, function(e){console.log(e);});
     });
 }
 
