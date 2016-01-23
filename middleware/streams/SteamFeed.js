@@ -1,6 +1,6 @@
 const
     db = require('../core/db.js'),
-    M = require('mongoose'),
+    mongoose = require('mongoose'),
     util = require('util'),
     http = require('http'),
     steamHost = "api.steampowered.com",
@@ -42,7 +42,7 @@ function processBatch(userIds) {
         }, function(res) { //todo factor this out into another function
             res.on("data", function(chunk) {
                 console.log("BODY: " + chunk);
-                var ce = M.model('CurrentEvents');
+                var ce = mongoose.model('CurrentEvents');
 
                 var x = ce.find({}).exec(function(err, docs){ console.log(docs);});
                 console.log(x);
