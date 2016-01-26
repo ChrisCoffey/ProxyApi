@@ -1,7 +1,7 @@
 "use strict";
 var middleware = require('../middleware/common');
 var vals = require('../middleware/middlewareGlobals');
-
+var _ = require('underscore');
 var firebaseStore;
 var SharedMiddleware = function(store){
   firebaseStore = store;
