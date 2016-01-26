@@ -30,3 +30,4 @@ process.on(states.SIGINT, function(){
 });
 
 require('./models');
+exports.shutdown = mongoose.connection.close
