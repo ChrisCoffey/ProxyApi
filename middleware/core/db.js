@@ -1,6 +1,7 @@
-const states = require('./appStates.js');
-var mongoose = require('mongoose');
-var dbUri = process.env.MONGO_PATH;
+require('./models.js');
+const states = require('./appStates.js'),
+mongoose = require('mongoose'),
+dbUri = process.env.MONGO_PATH;
 
 mongoose.connect(dbUri);
 
@@ -29,5 +30,4 @@ process.on(states.SIGINT, function(){
     });
 });
 
-require('./models');
-exports.shutdown = mongoose.connection.close
+exports.shutdown = mongoose.connection.close;

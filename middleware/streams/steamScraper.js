@@ -1,10 +1,8 @@
 const
     state = require('../core/appStates.js'),
-    fileSys = require('fs'),
     child = require('child_process'),
     ScraperBrain = require('./scraperBrain.js'),
-    API_LIMIT = 100000,
-    _ = require('underscore');
+    API_LIMIT = 100000;
 
 var SteamScraper = ScraperBrain.Scraper('Steam', 100, 10000);
 ScraperBrain.registerScraper(SteamScraper);
@@ -23,7 +21,7 @@ function runBatch(){
         console.log("ran process " + SteamScraper.name + " happily. Exited with code "+ exitCode);
     });
     return ls.length;
-};
+}
 
 function scrape(){
     if(SteamScraper.callCount >= API_LIMIT){
@@ -32,7 +30,7 @@ function scrape(){
     else {
         SteamScraper.callCount += runBatch()
     }
-};
+}
 
 var timerLoop = setInterval(scrape, SteamScraper.interval);
 
