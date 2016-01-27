@@ -1,6 +1,6 @@
 "use strict";
-const google = require('../middleware/googlePersonMiddleware'),
-  path = require('../middleware/middlewareGlobals'),
+const google = require('../middleware/googlePersonMiddleware.js'),
+  path = require('../middleware/middlewareGlobals.js'),
   express = require('express'),
   app = express.Router();
 
