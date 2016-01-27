@@ -1,5 +1,4 @@
 require("./middleware/core/db.js");
-require("./middleware/streams/Runner");
 const express = require('express'),
   app = express(),
   Firebase = require('firebase'),

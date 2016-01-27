@@ -3,6 +3,7 @@ const middleware = require('../middleware/common'),
   FirebaseTokenGen = require("firebase-token-generator"),
   tokenGen = new FirebaseTokenGen("CcqAHb98loxjOoyzBJjvdCiYKFcT0h64jw2uhGDs");
 
+var _ = require('underscore');
 var firebaseStore;
 var Authentication = function (store) {
   firebaseStore = store;

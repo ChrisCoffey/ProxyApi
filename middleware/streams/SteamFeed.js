@@ -3,8 +3,9 @@ var
     util = require('util'),
     http = require('http'),
     steamHost = "api.steampowered.com",
-    key = process.env.STEAM_KEY;
-    models = require('../core/models.js');
+    key = process.env.STEAM_KEY,
+    channel = 'Steam',
+    models = require('../core/models.js'),
     db = require('../core/db.js'); //necessary b/c of the process fork
 
 //use this to resolve a user's vanity url-> http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=EE9DBBAF6AB57D4A48378D01FCE47C0A&vanityurl=dwittzexmachina
@@ -48,9 +49,12 @@ function parseResponse(js) {
     var players = responseBody.players;
     return _.map(players, function(player){
         return {
-            source: "Steam",
+            channel: channel,
+            url: player.profileurl,
             user: player.steamid,
-            type: findStatus(player.personastate)
+            type: util.format("%s is %s ",
+                    player.personaname,
+                    findStatus(player.personastate))
         };
     });
 }
