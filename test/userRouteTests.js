@@ -1,6 +1,6 @@
 "use strict";
 var request = require('supertest');
-var common = require('../middleware/common');
+var common = require('../middleware/common.js');
 
 describe('users routes', function () {
   it('should return 200 on GET /users', function (done) {
