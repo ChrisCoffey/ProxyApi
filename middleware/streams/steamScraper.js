@@ -1,8 +1,7 @@
-const
-    state = require('../core/appStates.js'),
-    child = require('child_process'),
-    ScraperBrain = require('./scraperBrain.js'),
-    API_LIMIT = 100000;
+const child = require('child_process'),
+  state = require('../core/appStates.js'),
+  ScraperBrain = require('./scraperBrain.js'),
+  API_LIMIT = 100000;
 
 var SteamScraper = ScraperBrain.Scraper('Steam', 100, 10000);
 ScraperBrain.registerScraper(SteamScraper);
@@ -13,23 +12,23 @@ ScraperBrain.registerUser(a);
 var b = ScraperBrain.ChannelUser(SteamScraper.name, "76561197975148673");
 ScraperBrain.registerUser(b);
 
-function runBatch(){
-    var ls = SteamScraper.getBach();
-    var p = child.fork("./middleware/streams/SteamFeed.js", ls);
-    
-    p.on(state.EXIT, function(exitCode){
-        console.log("ran process " + SteamScraper.name + " happily. Exited with code "+ exitCode);
-    });
-    return ls.length;
+function runBatch() {
+  var ls = SteamScraper.getBach();
+  var p = child.fork("./middleware/streams/SteamFeed.js", ls);
+
+  p.on(state.EXIT, function (exitCode) {
+    console.log("ran process " + SteamScraper.name + " happily. Exited with code " + exitCode);
+  });
+  return ls.length;
 }
 
-function scrape(){
-    if(SteamScraper.callCount >= API_LIMIT){
-        clearInterval(timerLoop);
-    }
-    else {
-        SteamScraper.callCount += runBatch()
-    }
+function scrape() {
+  if (SteamScraper.callCount >= API_LIMIT) {
+    clearInterval(timerLoop);
+  }
+  else {
+    SteamScraper.callCount += runBatch()
+  }
 }
 
 var timerLoop = setInterval(scrape, SteamScraper.interval);

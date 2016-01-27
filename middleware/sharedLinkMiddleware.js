@@ -1,6 +1,6 @@
 "use strict";
-const middleware = require('../middleware/common'),
-  vals = require('../middleware/middlewareGlobals'),
+const middleware = require('../middleware/common.js'),
+  vals = require('../middleware/middlewareGlobals.js'),
   _ = require('underscore');
 
 var firebaseStore;
