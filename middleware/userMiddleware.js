@@ -1,8 +1,8 @@
 "use strict";
 const _ = require('underscore'),
-  middleware = require('../middleware/common'),
-  sharedMiddleware = require('../middleware/sharedLinkMiddleware'),
-  vals = require('../middleware/middlewareGlobals');
+  middleware = require('../middleware/common.js'),
+  sharedMiddleware = require('../middleware/sharedLinkMiddleware.js'),
+  vals = require('../middleware/middlewareGlobals.js');
 
 var UserMiddleware = function (store) {
   this._firebaseStore = store;

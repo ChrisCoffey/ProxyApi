@@ -1,5 +1,5 @@
 "use strict";
-const middleware = require('../middleware/common'),
+const middleware = require('../middleware/common.js'),
   FirebaseTokenGen = require("firebase-token-generator"),
   tokenGen = new FirebaseTokenGen("CcqAHb98loxjOoyzBJjvdCiYKFcT0h64jw2uhGDs");
 
