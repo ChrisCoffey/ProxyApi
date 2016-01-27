@@ -2,6 +2,7 @@
 const middleware = require('../middleware/common.js'),
 vals = require('../middleware/middlewareGlobals.js');
 
+var _ = require('underscore');
 var MessageMiddleware = function (store) {
   this._firebaseStore = store;
 };

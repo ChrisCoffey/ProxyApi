@@ -1,9 +1,10 @@
 "use strict";
-const middleware = require('../middleware/common.js'),
-vals = require('../middleware/middlewareGlobals.js');
+const middleware = require('../middleware/common'),
+  vals = require('../middleware/middlewareGlobals'),
+  _ = require('underscore');
 
 var firebaseStore;
-var SharedMiddleware = function(store){
+var SharedMiddleware = function (store) {
   firebaseStore = store;
 };
 _.extend(SharedMiddleware.prototype, {

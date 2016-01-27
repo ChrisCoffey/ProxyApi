@@ -1,9 +1,10 @@
 var mongoose= require('mongoose');
 
 var activityEvent = new mongoose.Schema({
-    source: 'string',
+    channel: 'string',
     user: 'string',
-    type: 'string' 
+    url: 'string',
+    message: 'string' 
 });
 
 var feedRecord = new mongoose.Schema({
@@ -18,7 +19,6 @@ var CurrentEvent = mongoose.model('CurrentEvents', activityEvent, 'current_event
 
 exports.saveNewEvent = function(evnt, onError){
     var ce = new CurrentEvent(evnt);
-    console.log(evnt);
     ce.save(onError);
 };
 
