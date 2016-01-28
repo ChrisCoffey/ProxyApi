@@ -16,10 +16,15 @@ _.extend(UserMiddleware.prototype, {
   subscribeToActivityFeed: function(userId, res, next){
       var sub = subscriptions.subscribe(userId);
       sub.start();
-      res.status 200;
+      res.status(200);
   },
   fetchNextFeedBlock(userId, time, res, next){
-      
+      var sub = subscriptions.forUser(userId);
+      var records = _.map(sub, function(s){
+        s.nextBlock(time);
+      });
+
+      res.status(200).json(records);
   },
   modifyUserGroups: function (userId, groups, res, next) {
     this._firebaseStore.child(vals.USERS).child(userId).child(vals.GROUPS)

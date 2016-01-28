@@ -32,7 +32,13 @@ Subscription.prototype.start = function() {
 };
 
 exports.subscribe = function(userId){ return new Subscription(userId) };
-exports.getSubscription = function(userId){ return
+exports.getSubscription = function(userId){ 
+    if(activeSubscriptions.hasOwnProperty(userId)){
+        return [activeSubscriptions.userId];
+    } else{
+        return [];
+    }
+};
 
 //client calls subscribe()
 //server creates a subscription
