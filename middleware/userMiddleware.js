@@ -2,7 +2,8 @@
 const _ = require('underscore'),
   middleware = require('../middleware/common'),
   sharedMiddleware = require('../middleware/sharedLinkMiddleware'),
-  vals = require('../middleware/middlewareGlobals');
+  vals = require('../middleware/middlewareGlobals'),
+  subscriptions = require('../middleware/core/subscriptions');
 
 var UserMiddleware = function (store) {
   this._firebaseStore = store;
@@ -12,6 +13,14 @@ var UserMiddleware = function (store) {
  * Functions for module export.
  */
 _.extend(UserMiddleware.prototype, {
+  subscribeToActivityFeed: function(userId, res, next){
+      var sub = subscriptions.subscribe(userId);
+      sub.start();
+      res.status 200;
+  },
+  fetchNextFeedBlock(userId, time, res, next){
+      
+  },
   modifyUserGroups: function (userId, groups, res, next) {
     this._firebaseStore.child(vals.USERS).child(userId).child(vals.GROUPS)
       .update(groups, function (error) {

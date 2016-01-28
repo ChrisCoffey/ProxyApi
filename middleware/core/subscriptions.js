@@ -1,15 +1,20 @@
 const 
     firebaseClient = require('firebase'),
     scraperBrain = require('scraperBrain'),
+    models = require('models'),
     _ = require('underscore');
 
-var activeSubscriptions = [];
+var activeSubscriptions = {};
 
 var Subscription = function(userId){
     this.userId = userId;
 };
 
 Subscription.prototype.cancel = function() {
+    
+};
+
+Subscription.prototype.nextBlock = function(time){
     
 };
 
@@ -22,12 +27,12 @@ Subscription.prototype.start = function() {
     _.each(pairs, function(pair){
         scraperBrain.registerUser(pair);
     });
-
-    activeSubscriptions.push(this);
+    var id = this.userId;
+    activeSubscriptions[id].this;
 };
 
 exports.subscribe = function(userId){ return new Subscription(userId) };
-
+exports.getSubscription = function(userId){ return
 
 //client calls subscribe()
 //server creates a subscription
