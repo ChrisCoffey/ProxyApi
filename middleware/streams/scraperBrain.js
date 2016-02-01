@@ -1,3 +1,5 @@
+const _ = require('underscore');
+
 var ChannelUser= function (channelName, userId){
     this.channelName = channelName;
     this.userId = userId;

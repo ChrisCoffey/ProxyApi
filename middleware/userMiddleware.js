@@ -18,7 +18,7 @@ _.extend(UserMiddleware.prototype, {
       sub.start();
       res.status(200);
   },
-  fetchNextFeedBlock(userId, time, res, next){
+    fetchNextFeedBlock: function(userId, time, res, next){
       var sub = subscriptions.forUser(userId);
       var records = _.map(sub, function(s){
         s.nextBlock(time);

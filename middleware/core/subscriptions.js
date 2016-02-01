@@ -1,7 +1,7 @@
 const 
     firebaseClient = require('firebase'),
-    scraperBrain = require('scraperBrain'),
-    models = require('models'),
+    scraperBrain = require('../streams/scraperBrain'),
+    models = require('./models'),
     _ = require('underscore');
 
 var activeSubscriptions = {};
@@ -10,12 +10,15 @@ var Subscription = function(userId){
     this.userId = userId;
 };
 
-Subscription.prototype.cancel = function() {
-    
-};
-
 Subscription.prototype.nextBlock = function(time){
-    
+    var feed = ActivityFeed.find()
+        .where('time').gt(time)
+        .limit(10)
+        .sort('-time')
+        .exec();
+
+    firebaseClient.
+    _.filter()
 };
 
 Subscription.prototype.start = function() {
@@ -40,10 +43,3 @@ exports.getSubscription = function(userId){
     }
 };
 
-//client calls subscribe()
-//server creates a subscription
-//subscription calls firebase and gets channels
-//subscription adds subscriptions for all channel+user combos
-//feed handles it from there
-
-//
