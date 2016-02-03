@@ -1,8 +1,8 @@
 "use strict";
-var middleware = require('../middleware/common');
-var vals = require('../middleware/middlewareGlobals');
+const middleware = require('../middleware/common.js'),
+  vals = require('../middleware/middlewareGlobals.js'),
+  _ = require('underscore');
 
-var _ = require('underscore');
 var MessageMiddleware = function (store) {
   this._firebaseStore = store;
 };

@@ -1,17 +1,17 @@
 "use strict";
-const google = require('../middleware/googlePersonMiddleware'),
-  path = require('../middleware/middlewareGlobals'),
+const google = require('../middleware/googlePersonMiddleware.js'),
+  path = require('../middleware/middlewareGlobals.js'),
   express = require('express'),
   app = express.Router();
 
 //noinspection JSUnresolvedVariable
 module.exports = function (store) {
   const
-    UserMiddleware = require('../middleware/userMiddleware'),
+    UserMiddleware = require('../middleware/userMiddleware.js'),
     user = new UserMiddleware(store),
-    Authentication = new require('../middleware/authentication'),
+    Authentication = new require('../middleware/authentication.js'),
     auth = new Authentication(store),
-    Messages = require('../middleware/messagesMiddleware'),
+    Messages = require('../middleware/messagesMiddleware.js'),
     messages = new Messages(store);
   /**
    * Base Users table lookup.

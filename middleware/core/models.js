@@ -1,6 +1,5 @@
 var mongoose= require('mongoose');
 
-
 var activityEvent = new mongoose.Schema({
     channel: 'string',
     user: 'string',
