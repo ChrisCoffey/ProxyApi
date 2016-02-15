@@ -4,9 +4,26 @@ const
     models = require('./models'),
     _ = require('underscore');
 
-var activeSubscriptions = {};
+var SubscriptionMgr = function (store) {
+    this._userStore = store;
+    this.activeSubscriptions = {};
+    this.channelSubscriptions = {};
+};
 
-var Subscription = function(userId){
+SubscriptionMgr.prototype.add = function(subscription){
+        
+};
+
+SubscriptionMgr.prototype.get = function(userId){
+    if(this.activeSubscriptions.hasOwnProperty(userId)){
+        return [this.activeSubscriptions.userId];
+    } else {
+        return [];
+    }
+};
+
+var Subscription = function(userId, mgr){
+    this.manager = mgr;
     this.userId = userId;
 };
 
@@ -34,12 +51,6 @@ Subscription.prototype.start = function() {
     activeSubscriptions[id].this;
 };
 
-exports.subscribe = function(userId){ return new Subscription(userId) };
-exports.getSubscription = function(userId){ 
-    if(activeSubscriptions.hasOwnProperty(userId)){
-        return [activeSubscriptions.userId];
-    } else{
-        return [];
-    }
-};
+exports.manager = SubscriptionMgr;
+exports.subscribe = function(userId, mgr){ return new Subscription(userId, mgr) };
 

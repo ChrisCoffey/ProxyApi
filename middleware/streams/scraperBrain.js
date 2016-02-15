@@ -1,5 +1,19 @@
 const _ = require('underscore');
 
+var ScraperManager = function() {
+    var scrapers = {};
+};
+
+ScraperManager.prototype.get = function(channelName) {
+    if(this.scrapers[channelName] === undefined)
+        return []
+    else {
+        return [this.scrapers[channelName]];
+    }
+};
+
+
+
 var ChannelUser= function (channelName, userId){
     this.channelName = channelName;
     this.userId = userId;
@@ -26,6 +40,8 @@ Scraper.prototype.notify = function(userId) {
 
 var scrapers = {};
 
+
+//Exports
 exports.registerScraper = function(sc) {
     scrapers[sc.name] = sc;
 };
