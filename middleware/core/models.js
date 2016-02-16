@@ -20,3 +20,8 @@ exports.saveNewEvent = function(evnt, onError){
     ce.save(onError);
 };
 
+exports.feedSince = function(idList, time){
+    ActivityFeed
+        .find()
+        .where('events.user').in(idLIst);
+};

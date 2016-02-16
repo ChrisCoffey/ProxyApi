@@ -13,12 +13,13 @@ var UserMiddleware = function (store) {
  * Functions for module export.
  */
 _.extend(UserMiddleware.prototype, {
+
   subscribeToActivityFeed: function(userId, res, next){
       var sub = subscriptions.subscribe(userId);
       sub.start();
       res.status(200);
   },
-    fetchNextFeedBlock: function(userId, time, res, next){
+  fetchNextFeedBlock: function(userId, time, res, next){
       var sub = subscriptions.forUser(userId);
       var records = _.map(sub, function(s){
         s.nextBlock(time);
@@ -180,7 +181,7 @@ _.extend(UserMiddleware.prototype, {
       snapshot.forEach(function (firebaseUser) {
         var user = firebaseUser.val();
         var contacts = user.contacts;
-        if (contacts != null && typeof contacts != vals.UNDEFINED) {
+        if (contacts !== null && typeof contacts != vals.UNDEFINED) {
           for (var i = 0; i < contacts.length; i++) {
             if (contacts[i] === userId) {
               ++count;
@@ -324,7 +325,7 @@ function getQueriedUsers(headerUsers, snapshot, isArray) {
     var id = data.id;
     var length = headerUsers.length;
 
-    if (length != 0) {
+    if (length !== 0) {
       for (var i = 0; i < length; ++i) {
         if (isArray) {
           if (headerUsers[i] == id) {

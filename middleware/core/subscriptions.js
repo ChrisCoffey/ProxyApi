@@ -1,6 +1,5 @@
 const 
-    firebaseClient = require('firebase'),
-    scraperBrain = require('../streams/scraperBrain'),
+    Scrapers = require('../streams/scraperBrain'),
     models = require('./models'),
     _ = require('underscore');
 
@@ -10,8 +9,14 @@ var SubscriptionMgr = function (store) {
     this.channelSubscriptions = {};
 };
 
-SubscriptionMgr.prototype.add = function(subscription){
-        
+SubscriptionMgr.prototype.add = function(pairs){
+    _.each(pairs,  function (pair){
+       if( !this.channelSubscriptions.hasOwnProperty(pair.channel) ){
+           var s = Scrapers.Scraper(pair.channelName);
+           Scrapers.registerScraper(s);
+       }
+       Scrapers.registerUser(pair);
+    });
 };
 
 SubscriptionMgr.prototype.get = function(userId){
@@ -27,30 +32,23 @@ var Subscription = function(userId, mgr){
     this.userId = userId;
 };
 
-Subscription.prototype.nextBlock = function(time){
-    var feed = ActivityFeed.find()
-        .where('time').gt(time)
-        .limit(10)
-        .sort('-time')
-        .exec();
+Subscription.prototype.nextBlock = function(userIds, time) {
+    //todo factor out all of this firebase bullshit
+    var feed = models.feedSince(userIds, time);
+    var events = _.map(feed,  function (block){
+       var t = block.timestamp;
+       _.each(block.events,  function (e){ e.time = t;  });
+       return block.events;
+    });
 
-    firebaseClient.
-    _.filter()
+    return _.reduce(events,  function (acc, e){ acc.concat(e); }, []);
 };
 
-Subscription.prototype.start = function() {
-
-    var userChannels = firebaseClient.getChannelsForUser(this.userId);
-    var pairs =  _.map(userChannels, function(chan){
-        return {userId: this.userId, channelName: chan.name};
-    });
+Subscription.prototype.start = function(pairs) {
     _.each(pairs, function(pair){
-        scraperBrain.registerUser(pair);
+        this.mgr.add(pair);
     });
-    var id = this.userId;
-    activeSubscriptions[id].this;
 };
 
 exports.manager = SubscriptionMgr;
-exports.subscribe = function(userId, mgr){ return new Subscription(userId, mgr) };
-
+exports.subscribe = function(userId, mgr){ return new Subscription(userId, mgr); };
