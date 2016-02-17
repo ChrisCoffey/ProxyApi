@@ -93,11 +93,11 @@ module.exports = function (store) {
 
   app.route(path.SUBSCRIBE)
     .all(auth.ensureFirebaseAuthenticated)
-    .put(user.subscribe);
+    .put(user.subscribeToActivityFeed);
 
   app.route(path.NEXT_FEED)
     .all(auth.ensureFirebaseAuthenticated)
-    .get(user.nextBlock);
+    .get(user.fetchNextFeedBlock);
   
   return app;
 };
