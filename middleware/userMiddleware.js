@@ -7,6 +7,7 @@ const _ = require('underscore'),
 
 var UserMiddleware = function (store) {
   this._firebaseStore = store;
+  this.subscriptionManager = subscriptions.manager(store);
 };
 
 /**
@@ -14,18 +15,25 @@ var UserMiddleware = function (store) {
  */
 _.extend(UserMiddleware.prototype, {
 
-  subscribeToActivityFeed: function(userId, res, next){
-      var sub = subscriptions.subscribe(userId);
+  subscribeToActivityFeed: function(req, res, next){
+      var userId = middleware.checkParam400(res, req.get(vals.USERID), vals.USERID);
+      var sub = subscriptions.subscribe(userId, this.subscriptionManager);
       sub.start();
       res.status(200);
   },
-  fetchNextFeedBlock: function(userId, time, res, next){
-      var sub = subscriptions.forUser(userId);
-      var records = _.map(sub, function(s){
-        s.nextBlock(time);
-      });
+  fetchNextFeedBlock: function(req, res, next){
+      var userId = middleware.checkParam400(res, req.get(vals.USERID), vals.USERID);
+      var time = middleware.checkParam400(res, req.get(vals.TIME), vals.TIME);
+      
+      this._firebaseStore.child(vals.USERS).child(userId).once(vals.VALUE, function (snapshot) {
+        var contacts = snapshot.contacts;  
+        var sub = this.subscriptionManager.get(userId);
+        var records = _.map(sub, function(s){
+            s.nextBlock(time);
+        });
 
-      res.status(200).json(records);
+        res.status(200).json(records);
+      });
   },
   modifyUserGroups: function (userId, groups, res, next) {
     this._firebaseStore.child(vals.USERS).child(userId).child(vals.GROUPS)

@@ -1,8 +1,5 @@
 "use strict";
-/**
- * Common Firebase middleware path urls.
- * @type {string}
- */
+
 exports.ROOT_URL = "/";
 exports.USERS_URL = "/users";
 exports.USER_URL = "/user";
@@ -18,10 +15,14 @@ exports.MESSAGES_URL = "/messages";
 exports.SEARCH_URL = "/search";
 exports.GOOGLE_PLUS_PEOPLE_URL = "https://www.googleapis.com/plus/v1/people/";
 exports.GOOGLE_PERSON_URL = "/google/person";
+//both of these urls can be more restlike, but this is fine for now
+exports.SUBSCRIBE = "/user/subscribe";
+exports.NEXT_FEED= "/user/feed";
 /**
  * Common Firebase middleware data strings.
  * @type {string}
  */
+exports.TIME = "time";
 exports.USERS = "users";
 exports.USER = "user";
 exports.USERID = "userId";

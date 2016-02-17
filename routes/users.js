@@ -91,5 +91,13 @@ module.exports = function (store) {
     .all(auth.ensureFirebaseAuthenticated)
     .get(google.getGooglePerson);
 
+  app.route(path.SUBSCRIBE)
+    .all(auth.ensureFirebaseAuthenticated)
+    .put(user.subscribe);
+
+  app.route(path.NEXT_FEED)
+    .all(auth.ensureFirebaseAuthenticated)
+    .get(user.nextBlock);
+  
   return app;
 };

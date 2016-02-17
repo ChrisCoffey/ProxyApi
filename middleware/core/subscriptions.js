@@ -19,6 +19,10 @@ SubscriptionMgr.prototype.add = function(pairs){
     });
 };
 
+SubscriptionMgr.prototype.activate = function(userId, subscription) {
+    this.activeSubscriptions[userId] = subscription;
+};
+
 SubscriptionMgr.prototype.get = function(userId){
     if(this.activeSubscriptions.hasOwnProperty(userId)){
         return [this.activeSubscriptions.userId];
@@ -45,6 +49,8 @@ Subscription.prototype.nextBlock = function(userIds, time) {
 };
 
 Subscription.prototype.start = function(pairs) {
+    this.mgr.activate(this.userId, this);
+    
     _.each(pairs, function(pair){
         this.mgr.add(pair);
     });
