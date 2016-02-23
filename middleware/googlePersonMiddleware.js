@@ -1,7 +1,7 @@
 "use strict";
-var middleware = require('../middleware/common');
-var httpRequest = require('request');
-var vals = require('../middleware/middlewareGlobals');
+const middleware = require('../middleware/common.js'),
+  httpRequest = require('request'),
+  vals = require('../middleware/middlewareGlobals.js');
 var googleMiddleware = {};
 
 googleMiddleware.getGooglePerson = function (req, res, next) {

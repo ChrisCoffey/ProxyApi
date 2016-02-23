@@ -1,8 +1,8 @@
 "use strict";
 const express = require("express"),
-  path = require('../middleware/middlewareGlobals'),
-  auth = require('../middleware/authentication'),
-  sharedMiddleware = require('../middleware/sharedLinkMiddleware'),
+  path = require('../middleware/middlewareGlobals.js'),
+  auth = require('../middleware/authentication.js'),
+  sharedMiddleware = require('../middleware/sharedLinkMiddleware.js'),
   router = express.Router();
 
 /**

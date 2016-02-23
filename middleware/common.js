@@ -1,5 +1,5 @@
 "use strict";
-var vals = require('../middleware/middlewareGlobals');
+const vals = require('../middleware/middlewareGlobals.js');
 var middleware = {};
 
 /**
