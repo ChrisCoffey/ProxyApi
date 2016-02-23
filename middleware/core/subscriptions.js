@@ -15,6 +15,7 @@ SubscriptionMgr.prototype.add = function(pairs){
            var s = Scrapers.Scraper(pair.channelName);
            Scrapers.registerScraper(s);
        }
+
        Scrapers.registerUser(pair);
     });
 };

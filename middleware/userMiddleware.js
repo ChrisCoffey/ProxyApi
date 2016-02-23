@@ -40,7 +40,7 @@ _.extend(UserMiddleware.prototype, {
       .update(groups, function (error) {
         if (error) {
           res.status(400).send("Error updating user groups: " + error);
-          next(error)
+          next(error);
         } else {
           res.status(200);
         }

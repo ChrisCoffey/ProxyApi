@@ -13,7 +13,6 @@ const express = require('express'),
   rollbar = require('rollbar'),
   rollbarKey = "57fcf7c2515b4dd3916052ed09902fe8";
 
-require('./middleware/streams/steamScraper.js');
 /**
  * Initiate Rollbar logging.
  */

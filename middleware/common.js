@@ -32,7 +32,7 @@ middleware.checkParam400 = function (res, param, name) {
   if (param === null || typeof param === vals.UNDEFINED) {
     res.status(400).json(middleware.get400ParamError(name));
   }
-  return param
+  return param;
 };
 
 middleware.createNewAndroidUser = function (user) {
